@@ -25,8 +25,8 @@ export function StorefrontHero() {
             beautifully simple.
           </h1>
           <p className="heroA-sub">
-            Premium laptops, phones, audio and wearables — curated, and ready
-            to ship in 2 days.
+            Premium laptops, phones, audio and wearables — curated, and ready to
+            ship in 2 days.
           </p>
           <div className="heroA-cta">
             <Link href="/products" className="btn btn-primary btn-lg">
@@ -79,12 +79,19 @@ const cats = [
 
 export function CategoryTiles() {
   return (
-    <section className="section cat-strip-sec" style={{ background: "var(--surface)" }}>
+    <section
+      className="section cat-strip-sec"
+      style={{ background: "var(--bg)" }}
+    >
       <div className="wrap">
         <SectionHead eyebrow="Browse" title="Shop by category" />
         <div className="cat-grid">
           {cats.map((c, i) => (
-            <Link key={i} href={categoryNavHref(c.id)} className="cat-tile reveal">
+            <Link
+              key={i}
+              href={categoryNavHref(c.id)}
+              className="cat-tile reveal"
+            >
               <NovaGlyph type={c.glyph} className="cat-glyph" />
               <span>{c.label}</span>
               <span className="cat-arr">
@@ -175,14 +182,21 @@ export function StorefrontCta() {
       </section>
 
       {/* Value row */}
-      <section className="section" style={{ paddingBlock: "clamp(48px,6vw,84px)" }}>
+      <section
+        className="section"
+        style={{ paddingBlock: "clamp(48px,6vw,84px)" }}
+      >
         <div className="wrap value-row">
           {(
             [
               ["truck", "Free 2-day shipping", "On every order, no minimum."],
               ["refresh", "30-day returns", "Changed your mind? No problem."],
               ["shield", "2-year warranty", "Protection on all Nova devices."],
-              ["headset", "Real human support", "Chat with experts, 7 days a week."],
+              [
+                "headset",
+                "Real human support",
+                "Chat with experts, 7 days a week.",
+              ],
             ] as const
           ).map(([ic, t, d]) => (
             <div className="value-item reveal" key={t}>
