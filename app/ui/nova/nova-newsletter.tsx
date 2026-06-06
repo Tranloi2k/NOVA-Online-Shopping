@@ -8,7 +8,7 @@ export function NovaNewsletter() {
   return (
     <section className="section">
       <div className="wrap">
-        <div className="news">
+        <div className="news flex flex-col items-center justify-center">
           <h2 style={{ fontSize: "clamp(26px,3.2vw,40px)" }}>
             Be first to the next drop.
           </h2>
