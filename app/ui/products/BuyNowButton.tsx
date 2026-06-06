@@ -78,21 +78,28 @@ export default function BuyNowButton({
       onClick={handleBuyNow}
       disabled={isLoading || isAuthLoading}
       className={clsx(
-        "inline-flex h-12 w-full items-center justify-center gap-2 rounded-shop text-sm font-medium tracking-wide transition-all duration-shop ease-shop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shop-text focus-visible:ring-offset-2",
-        isLoading
-          ? "cursor-not-allowed bg-shop-muted text-white"
-          : "bg-shop-text text-white hover:bg-shop-accent-hover",
+        "btn btn-dark btn-lg btn-block",
+        (isLoading || isAuthLoading) && "opacity-60 cursor-not-allowed",
       )}
     >
       {isLoading ? (
         <>
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-          Processing...
+          <div
+            style={{
+              width: 16,
+              height: 16,
+              borderRadius: "50%",
+              border: "2px solid rgba(255,255,255,.3)",
+              borderTopColor: "#fff",
+              animation: "spin 0.7s linear infinite",
+            }}
+          />
+          Processing…
         </>
       ) : (
         <>
           Buy now — ${total.toFixed(2)}
-          <ArrowRightIcon className="h-4 w-4" strokeWidth={2} />
+          <ArrowRightIcon style={{ width: 16, height: 16 }} strokeWidth={2} />
         </>
       )}
     </button>

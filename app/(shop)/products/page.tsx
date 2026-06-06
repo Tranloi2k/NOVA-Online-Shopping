@@ -8,6 +8,7 @@ import { getProducts } from "@/app/lib/services/products";
 import { buildPageMetadata } from "@/app/lib/seo";
 import { productListJsonLd } from "@/app/lib/seo-structured-data";
 import JsonLd from "@/app/ui/seo/json-ld";
+import Link from "next/link";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
@@ -86,35 +87,50 @@ export default async function ProductsPage(props: {
   );
 
   return (
-    <div className="shop-content-wrap py-8 md:py-12">
+    <main>
       {result.products.length > 0 ? (
         <JsonLd data={productListJsonLd(result.products)} />
       ) : null}
-      <div className="mb-8 md:mb-10">
-        <p className="font-mono-label text-shop-muted">Catalog</p>
-        <h1 className="shop-section-title mt-2">{pageTitle}</h1>
-        <p className="mt-2 max-w-lg text-sm text-shop-secondary">
-          Explore our curated collection of premium devices.
-        </p>
+
+      {/* Hero */}
+      <div className="shop-hero">
+        <div className="wrap">
+          <nav className="crumbs">
+            <Link href="/">Home</Link>
+            <span>/</span>
+            <span>{pageTitle}</span>
+          </nav>
+          <h1 style={{ fontSize: "clamp(32px,4.4vw,54px)", marginTop: 10 }}>
+            {pageTitle}
+          </h1>
+          <p className="muted" style={{ fontSize: 16, marginTop: 10 }}>
+            {result.total ?? result.products.length} products · free 2-day shipping on everything
+          </p>
+        </div>
       </div>
 
-      <Search />
+      {/* Body */}
+      <div className="wrap shop-body">
+        <Suspense fallback={null}>
+          <ProductToolbar />
+        </Suspense>
 
-      <Suspense fallback={null}>
-        <ProductToolbar />
-      </Suspense>
+        <Suspense fallback={null}>
+          <Search />
+        </Suspense>
 
-      <ListProductsComponent
-        products={result.products}
-        viewMode={filters.view}
-      />
-
-      <Suspense fallback={null}>
-        <ProductPagination
-          currentPage={result.page}
-          totalPages={result.totalPages}
+        <ListProductsComponent
+          products={result.products}
+          viewMode={filters.view}
         />
-      </Suspense>
-    </div>
+
+        <Suspense fallback={null}>
+          <ProductPagination
+            currentPage={result.page}
+            totalPages={result.totalPages}
+          />
+        </Suspense>
+      </div>
+    </main>
   );
 }

@@ -25,6 +25,9 @@ export type TokenPair = {
   userId?: string | number;
 };
 
+const COOKIE_MUTATION_ERROR =
+  "Cookies can only be modified in a Server Action or Route Handler";
+
 export async function setAuthCookies(tokens: TokenPair) {
   const cookieStore = await cookies();
   const expiresAt = Math.floor(Date.now() / 1000) + ACCESS_TOKEN_MAX_AGE;
@@ -70,6 +73,22 @@ export async function setAuthCookies(tokens: TokenPair) {
   }
 }
 
+/** Persist tokens when allowed; silently skip in Server Components. */
+export async function trySetAuthCookies(tokens: TokenPair): Promise<boolean> {
+  try {
+    await setAuthCookies(tokens);
+    return true;
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes(COOKIE_MUTATION_ERROR)
+    ) {
+      return false;
+    }
+    throw error;
+  }
+}
+
 export async function clearAuthCookies() {
   const cookieStore = await cookies();
   const cookieNames = [
@@ -90,16 +109,12 @@ export async function clearAuthCookies() {
   }
 }
 
-export async function refreshTokens(): Promise<boolean> {
+export async function fetchTokenRefresh(
+  refreshToken: string,
+): Promise<TokenPair | null> {
   const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
   if (!apiUrl) {
-    return false;
-  }
-
-  const cookieStore = await cookies();
-  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
-  if (!refreshToken) {
-    return false;
+    return null;
   }
 
   try {
@@ -110,31 +125,68 @@ export async function refreshTokens(): Promise<boolean> {
     });
 
     if (!res.ok) {
-      return false;
+      return null;
     }
 
-    const data = (await res.json()) as TokenPair;
-    await setAuthCookies({
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
-      userId: data.userId,
-    });
-    return true;
+    return (await res.json()) as TokenPair;
   } catch (error) {
     console.error("Token refresh failed:", error);
-    return false;
+    return null;
   }
 }
 
-/** Refresh via /token when access token is missing or expired. */
-export async function ensureValidAccessToken(): Promise<boolean> {
+export async function refreshTokens(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
+  if (!refreshToken) {
+    return false;
+  }
+
+  const tokens = await fetchTokenRefresh(refreshToken);
+  if (!tokens) {
+    return false;
+  }
+
+  await trySetAuthCookies({
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+    userId: tokens.userId,
+  });
+  return true;
+}
+
+/**
+ * Returns a valid access token for backend API calls.
+ * Refreshes in-memory when expired; persists cookies only in Route Handlers / Server Actions.
+ */
+export async function resolveAccessToken(): Promise<string | undefined> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
   const expiresAt = cookieStore.get(ACCESS_EXPIRES_COOKIE)?.value;
 
   if (accessToken && !isAccessTokenExpired(expiresAt)) {
-    return true;
+    return accessToken;
   }
 
-  return refreshTokens();
+  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
+  if (!refreshToken) {
+    return accessToken;
+  }
+
+  const tokens = await fetchTokenRefresh(refreshToken);
+  if (!tokens) {
+    return accessToken;
+  }
+
+  await trySetAuthCookies({
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+    userId: tokens.userId,
+  });
+  return tokens.accessToken;
+}
+
+/** True when a usable access token exists (may refresh without persisting cookies). */
+export async function ensureValidAccessToken(): Promise<boolean> {
+  return !!(await resolveAccessToken());
 }
