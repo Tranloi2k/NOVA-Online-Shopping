@@ -2,12 +2,10 @@
 import { authFetch } from "@/app/lib/api-client";
 import { CACHE_TAGS } from "@/app/lib/cache-tags";
 import type { ProductListItem } from "@/app/lib/definitions";
-import { productSlug } from "@/app/lib/seo";
+import { productSlug } from "@/app/lib/product-path";
 import { isNextNavigationError } from "@/app/lib/utils";
-import { unauthorized } from "next/navigation";
 
-const productsPerPage = 8;
-/** Page size when prebuilding product URLs at build time (sitemap, generateStaticParams). */
+const productsPerPage = 8;/** Page size when prebuilding product URLs at build time (sitemap, generateStaticParams). */
 const staticBuildPageSize = 50;
 const staticBuildMaxPages = 100;
 
@@ -42,8 +40,37 @@ const EMPTY_RESULT: ProductsPageResult = {
   hasPrevPage: false,
 };
 
-export async function getProducts(
-  filters: ProductsQuery = {},
+type CatalogFetchInit = {
+  tags: string[];
+  cache?: RequestCache;
+};
+
+async function fetchCatalogResponse(
+  url: string,
+  authenticated: boolean,
+  init: CatalogFetchInit,
+): Promise<Response> {
+  const publicInit: RequestInit = {
+    method: "GET",
+    next: { tags: init.tags, revalidate: 60 },
+  };
+
+  let res = authenticated
+    ? await authFetch(url, {
+        method: "GET",
+        cache: init.cache ?? "no-store",
+        next: { tags: init.tags },
+      })
+    : await fetch(url, publicInit);
+
+  if (res.status === 401 && authenticated) {
+    res = await fetch(url, publicInit);
+  }
+
+  return res;
+}
+
+export async function getProducts(  filters: ProductsQuery = {},
   options?: { authenticated?: boolean },
 ): Promise<ProductsPageResult> {
   const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
@@ -73,31 +100,16 @@ export async function getProducts(
   params.set("limit", String(filters.limit ?? productsPerPage));
 
   const url = `${apiUrl}/products?${params.toString()}`;
-  const authenticated = options?.authenticated ?? true;
+  const authenticated = options?.authenticated ?? false;
 
   const productTags = [CACHE_TAGS.products, CACHE_TAGS.catalog];
 
   try {
-    const res = authenticated
-      ? await authFetch(url, {
-          method: "GET",
-          cache: "no-store",
-          next: { tags: productTags },
-        })
-      : await fetch(url, {
-          method: "GET",
-          next: {
-            tags: productTags,
-            revalidate: 60,
-          },
-        });
+    const res = await fetchCatalogResponse(url, authenticated, {
+      tags: productTags,
+    });
 
-    if (res.status === 401) {
-      unauthorized();
-    }
-
-    if (!res.ok) {
-      console.error("Failed to fetch products:", res.status);
+    if (!res.ok) {      console.error("Failed to fetch products:", res.status);
       return EMPTY_RESULT;
     }
 
@@ -138,29 +150,15 @@ export async function getProductById(
     throw new Error("NEXT_PUBLIC_EXTERNAL_API_URL is not configured");
   }
 
-  const authenticated = options?.authenticated ?? true;
+  const authenticated = options?.authenticated ?? false;
   const url = `${apiUrl}/products/${id}`;
   const tags = [CACHE_TAGS.products, CACHE_TAGS.product(id)];
 
-  const res = authenticated
-    ? await authFetch(url, {
-        method: "GET",
-        cache: "no-store",
-        next: { tags },
-      })
-    : await fetch(url, {
-        method: "GET",
-        next: { tags, revalidate: 60 },
-      });
-
-  if (res.status === 401) {
-    unauthorized();
-  }
+  const res = await fetchCatalogResponse(url, authenticated, { tags });
 
   if (!res.ok) {
     throw new Error("Failed to fetch product");
   }
-
   const data = await res.json();
   return data;
 }

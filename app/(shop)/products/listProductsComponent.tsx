@@ -2,7 +2,7 @@
 
 import type { ProductListItem } from "@/app/lib/definitions";
 import type { ProductView } from "@/app/lib/product-filters";
-import { productPath } from "@/app/lib/seo";
+import { productPath } from "@/app/lib/product-path";
 import { formatMoney } from "@/app/ui/nova/nova-utils";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { Stars } from "@/app/ui/nova/nova-stars";

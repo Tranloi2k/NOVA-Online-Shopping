@@ -9,11 +9,7 @@ import { cookies } from "next/headers";
 export async function getAuthHeaders(
   extra?: Record<string, string>,
 ): Promise<HeadersInit> {
-  const cookieStore = await cookies();
-  const headers: Record<string, string> = {
-    Cookie: cookieStore.toString(),
-    ...extra,
-  };
+  const headers: Record<string, string> = { ...extra };
 
   const accessToken = await resolveAccessToken();
   if (accessToken) {
@@ -55,7 +51,6 @@ export async function authFetch(
         ...init,
         headers: {
           ...extra,
-          Cookie: cookieStore.toString(),
           Authorization: `Bearer ${tokens.accessToken}`,
         },
       });

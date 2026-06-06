@@ -170,12 +170,12 @@ export async function resolveAccessToken(): Promise<string | undefined> {
 
   const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
   if (!refreshToken) {
-    return accessToken;
+    return undefined;
   }
 
   const tokens = await fetchTokenRefresh(refreshToken);
   if (!tokens) {
-    return accessToken;
+    return undefined;
   }
 
   await trySetAuthCookies({
