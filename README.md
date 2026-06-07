@@ -265,7 +265,7 @@ Declined: 4000 0000 0000 0002
 
 **Your Name**
 
-- GitHub: [@yourusername](https://github.com/tranloi2k)
+- GitHub: [@tranloi2k](https://github.com/tranloi2k)
 - Email: tranloi162710@gmail.com
 
 ## 🙏 Acknowledgments
