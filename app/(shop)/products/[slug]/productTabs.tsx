@@ -27,6 +27,17 @@ export default function ProductTabs({
     ["reviews", "Reviews"],
   ];
 
+  const totalReviews = reviews?.length ?? 0;
+  const averageRating = (() => {
+    if (reviews && reviews.length > 0) {
+      const avg =
+        reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length;
+      if (Number.isFinite(avg)) return avg;
+    }
+    const fallback = Number(productRate);
+    return Number.isFinite(fallback) ? fallback : 0;
+  })();
+
   return (
     <div className="pdp-tabs">
       <div className="tab-row">
@@ -124,11 +135,11 @@ export default function ProductTabs({
             {reviews && reviews.length > 0 ? (
               <>
                 <div className="rev-summary">
-                  <div className="rev-big">{Number(productRate).toFixed(1)}</div>
+                  <div className="rev-big">{averageRating.toFixed(1)}</div>
                   <div>
                     <div style={{ display: "flex", gap: 2 }}>
                       {[1, 2, 3, 4, 5].map((r) =>
-                        r <= Math.floor(Number(productRate)) ? (
+                        r <= Math.floor(averageRating) ? (
                           <StarIcon
                             key={r}
                             style={{ width: 14, height: 14, color: "var(--ink)" }}
@@ -145,7 +156,7 @@ export default function ProductTabs({
                       className="muted"
                       style={{ fontSize: 13.5, marginTop: 4 }}
                     >
-                      {Number(reviewCount).toLocaleString()} verified reviews
+                      Average review · {totalReviews.toLocaleString()} reviews
                     </div>
                   </div>
                 </div>

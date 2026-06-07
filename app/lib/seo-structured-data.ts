@@ -82,10 +82,10 @@ export function productDetailJsonLd(product: ProductDetail) {
       : undefined);
   const reviewCount = product.reviewCount ?? product.reviews?.length ?? 0;
 
+  const price = Number(product.price);
+  const discount = Number(product.discount ?? 0);
   const offerPrice =
-    product.discount && product.discount > 0
-      ? product.price * (1 - product.discount / 100)
-      : product.price;
+    discount > 0 ? price * (1 - discount / 100) : price;
 
   return {
     "@context": "https://schema.org",
@@ -125,7 +125,7 @@ export function productDetailJsonLd(product: ProductDetail) {
           ? {
               aggregateRating: {
                 "@type": "AggregateRating",
-                ratingValue: rating.toFixed(1),
+                ratingValue: Number(rating).toFixed(1),
                 reviewCount,
               },
             }

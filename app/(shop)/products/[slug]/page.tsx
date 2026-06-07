@@ -52,6 +52,13 @@ export default async function ProductPage(props: {
   const authenticated = await getCatalogAuthenticated();
   const data = await getProductById(id, { authenticated });
   const { reviews } = data;
+  const reviewTotal =
+    Array.isArray(reviews) && reviews.length > 0
+      ? reviews.length
+      : Math.max(0, Number(data.reviewCount) || 0);
+  const productRating = Number.isFinite(Number(data.rate))
+    ? Number(data.rate)
+    : 0;
 
   const product = {
     ...data,
@@ -101,7 +108,7 @@ export default async function ProductPage(props: {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
                 {[1, 2, 3, 4, 5].map((r) =>
-                  r <= Math.floor(Number(product.rate)) ? (
+                  r <= Math.floor(productRating) ? (
                     <StarIcon
                       key={r}
                       style={{ width: 14, height: 14, color: "var(--ink)" }}
@@ -115,7 +122,7 @@ export default async function ProductPage(props: {
                 )}
               </div>
               <span className="muted" style={{ fontSize: 13.5 }}>
-                {product.rate} · {product.reviewCount} reviews
+                {productRating.toFixed(1)} · {reviewTotal.toLocaleString()} reviews
               </span>
             </div>
 
