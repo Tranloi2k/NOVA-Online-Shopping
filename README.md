@@ -116,7 +116,7 @@ NEXTAUTH_URL="http://localhost:3000"
 4. **Start NestJS Backend**
 
 ```bash
-# Make sure your NestJS backend is running on port 8080
+# Make sure your NestJS backend is running on port 5000
 # The backend should expose API endpoints at:
 # http://localhost:5000/api/products
 # http://localhost:5000/api/users
@@ -228,7 +228,7 @@ Declined: 4000 0000 0000 0002
 ### **Backend Deployment**
 
 - Deploy your NestJS backend separately
-- Update `NESTJS_API_URL` to production backend URL
+- Update `NEXT_PUBLIC_EXTERNAL_API_URL` to production backend URL
 - Ensure CORS allows your production frontend domain
 
 ### **Environment Variables for Production**
