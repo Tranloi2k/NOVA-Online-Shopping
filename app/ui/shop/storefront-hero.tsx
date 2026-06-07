@@ -46,6 +46,7 @@ export function StorefrontHero() {
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 720px"
             priority
+            fetchPriority="high"
           />
           <div className="heroA-spec heroA-spec-1">
             <span className="muted" style={{ fontSize: 12, fontWeight: 700 }}>

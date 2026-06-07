@@ -150,6 +150,7 @@ const googleSiteVerification =
 
 export const rootMetadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
+  manifest: "/manifest.json",
   title: {
     template: `%s | ${SITE_NAME}`,
     default: DEFAULT_TITLE,

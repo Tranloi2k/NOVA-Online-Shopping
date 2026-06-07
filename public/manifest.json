@@ -1,0 +1,17 @@
+{
+  "name": "NOVA — Premium Tech Store",
+  "short_name": "NOVA",
+  "description": "Discover premium smartphones, tablets, and wearables. Secure checkout and fast delivery.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/nova-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "scope": "/"
+}

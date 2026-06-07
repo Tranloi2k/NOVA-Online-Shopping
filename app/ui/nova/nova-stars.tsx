@@ -20,7 +20,9 @@ export function Stars({
       {showNum && (
         <span className="muted" style={{ fontSize: 13, fontWeight: 600 }}>
           {r.toFixed(1)}
-          {count ? ` · ${count.toLocaleString()}` : ""}
+          {count != null && Number.isFinite(Number(count))
+            ? ` · ${Number(count).toLocaleString()}`
+            : ""}
         </span>
       )}
     </span>

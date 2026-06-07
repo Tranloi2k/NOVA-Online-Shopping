@@ -22,7 +22,8 @@ export default function SlideImage({
           fill
           className="object-contain p-8 md:p-12"
           sizes="(max-width: 768px) 100vw, 50vw"
-          priority
+          priority={currentIndex === 0}
+          fetchPriority={currentIndex === 0 ? "high" : "auto"}
           style={{ position: "absolute", inset: 0 }}
         />
       </div>
