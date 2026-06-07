@@ -67,7 +67,19 @@ export default async function ProductPage(props: {
     images: data.images.split(","),
   };
 
-  const prodDetail = JSON.parse(JSON.parse(product.detailInformation));
+  let prodDetail: Record<string, unknown> | null = null;
+  if (product.detailInformation) {
+    try {
+      if (typeof product.detailInformation === "object") {
+        prodDetail = product.detailInformation as any;
+      } else {
+        const parsed = JSON.parse(product.detailInformation);
+        prodDetail = typeof parsed === "string" ? JSON.parse(parsed) : parsed;
+      }
+    } catch (e) {
+      console.error("Failed to parse detailInformation:", e);
+    }
+  }
 
   return (
     <main className="pdp-main">

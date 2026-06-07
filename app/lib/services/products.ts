@@ -5,7 +5,7 @@ import type { ProductListItem } from "@/app/lib/definitions";
 import { productSlug } from "@/app/lib/product-path";
 import { isNextNavigationError } from "@/app/lib/utils";
 
-const productsPerPage = 8;/** Page size when prebuilding product URLs at build time (sitemap, generateStaticParams). */
+const productsPerPage = 8; /** Page size when prebuilding product URLs at build time (sitemap, generateStaticParams). */
 const staticBuildPageSize = 50;
 const staticBuildMaxPages = 100;
 
@@ -70,7 +70,8 @@ async function fetchCatalogResponse(
   return res;
 }
 
-export async function getProducts(  filters: ProductsQuery = {},
+export async function getProducts(
+  filters: ProductsQuery = {},
   options?: { authenticated?: boolean },
 ): Promise<ProductsPageResult> {
   const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
@@ -109,7 +110,8 @@ export async function getProducts(  filters: ProductsQuery = {},
       tags: productTags,
     });
 
-    if (!res.ok) {      console.error("Failed to fetch products:", res.status);
+    if (!res.ok) {
+      console.error("Failed to fetch products:", res.status);
       return EMPTY_RESULT;
     }
 

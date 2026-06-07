@@ -25,7 +25,8 @@ function ProductCard({ p, index }: { p: ProductListItem; index: number }) {
               alt={p.name}
               width={260}
               height={260}
-              priority={index < 4}
+              priority={index === 0}
+              fetchPriority={index === 0 ? "high" : undefined}
               className="object-contain"
               style={{ width: "100%", height: "auto", transition: "transform .5s" }}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -114,6 +115,7 @@ export default function ListProductsComponent({
                     width={160}
                     height={140}
                     priority={index === 0}
+                    fetchPriority={index === 0 ? "high" : undefined}
                     className="object-contain p-4"
                     sizes="160px"
                   />

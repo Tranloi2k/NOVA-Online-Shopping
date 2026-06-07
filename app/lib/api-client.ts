@@ -36,9 +36,7 @@ export async function authFetch(
   if (response.status === 401) {
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
-    const tokens = refreshToken
-      ? await fetchTokenRefresh(refreshToken)
-      : null;
+    const tokens = refreshToken ? await fetchTokenRefresh(refreshToken) : null;
 
     if (tokens) {
       await trySetAuthCookies({
