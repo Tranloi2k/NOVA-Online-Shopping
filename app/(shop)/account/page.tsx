@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { buildPageMetadata } from "@/app/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
-import SignOutButton from "./sign-out-button";
 import { Icon } from "@/app/ui/nova/nova-icons";
 
 export const dynamic = "force-dynamic";
@@ -39,85 +38,58 @@ export default async function AccountPage() {
     : (user.email?.[0]?.toUpperCase() ?? "N");
 
   return (
-    <div className="acct-main">
-      <div className="wrap">
-        <div className="acct-grid">
-          {/* Sidebar */}
-          <aside className="acct-side">
-            <div className="acct-id">
-              <div className="acct-avatar">{initials}</div>
-              <div style={{ minWidth: 0 }}>
-                <div className="acct-name">{user.name ?? "Account"}</div>
-                <div className="acct-email">{user.email}</div>
-              </div>
-            </div>
-            <nav className="acct-nav">
-              {NAV_ITEMS.map(({ icon, label, href }) => (
-                <Link key={href} href={href} className="acct-nav-link">
-                  <Icon name={icon} size={18} />
-                  <span>{label}</span>
-                </Link>
-              ))}
-              <SignOutButton />
-            </nav>
-          </aside>
-
-          {/* Main content */}
-          <div className="acct-content">
-            {/* Banner */}
-            <div className="acct-banner">
-              <div className="acct-banner-avatar">{initials}</div>
-              <div style={{ position: "relative", zIndex: 1 }}>
-                <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--muted)" }}>
-                  Welcome back
-                </div>
-                <h1 className="acct-h1" style={{ marginTop: 4 }}>
-                  {user.name ?? user.email}
-                </h1>
-                <div className="acct-tier" style={{ marginTop: 6, fontSize: 13.5 }}>
-                  Nova Member
-                </div>
-              </div>
-            </div>
-
-            {/* Quick links grid */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2,1fr)",
-                gap: 14,
-              }}
-            >
-              {NAV_ITEMS.map(({ icon, label, href }) => (
-                <Link key={href} href={href} className="acct-card" style={{ display: "flex", alignItems: "center", gap: 16, textDecoration: "none" }}>
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: "var(--r-md)",
-                      background: "var(--accent-wash)",
-                      color: "var(--accent-ink)",
-                      display: "grid",
-                      placeItems: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Icon name={icon} size={20} />
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: "var(--ink)" }}>
-                      {label}
-                    </div>
-                    <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>
-                      Manage your {label.toLowerCase()}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+    <>
+      {/* Banner */}
+      <div className="acct-banner">
+        <div className="acct-banner-avatar">{initials}</div>
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--muted)" }}>
+            Welcome back
+          </div>
+          <h1 className="acct-h1" style={{ marginTop: 4 }}>
+            {user.name ?? user.email}
+          </h1>
+          <div className="acct-tier" style={{ marginTop: 6, fontSize: 13.5 }}>
+            Nova Member
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Quick links grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2,1fr)",
+          gap: 14,
+        }}
+      >
+        {NAV_ITEMS.map(({ icon, label, href }) => (
+          <Link key={href} href={href} className="acct-card" style={{ display: "flex", alignItems: "center", gap: 16, textDecoration: "none" }}>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: "var(--r-md)",
+                background: "var(--accent-wash)",
+                color: "var(--accent-ink)",
+                display: "grid",
+                placeItems: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Icon name={icon} size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 15, color: "var(--ink)" }}>
+                {label}
+              </div>
+              <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>
+                Manage your {label.toLowerCase()}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </>
   );
 }

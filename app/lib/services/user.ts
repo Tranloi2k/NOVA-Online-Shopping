@@ -35,3 +35,39 @@ export const getUser = async () => {
     return null;
   }
 };
+
+export const updateUser = async (
+  id: string | number,
+  data: { username?: string; email?: string; password?: string },
+) => {
+  const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
+  if (!apiUrl) {
+    return { error: "API URL not configured" };
+  }
+
+  try {
+    const response = await authFetch(`${apiUrl}/user/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Failed to update user:", errText);
+      try {
+        const errJson = JSON.parse(errText);
+        return { error: errJson.message || "Failed to update profile" };
+      } catch {
+        return { error: "Failed to update profile" };
+      }
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return { error: "An unexpected error occurred" };
+  }
+};
