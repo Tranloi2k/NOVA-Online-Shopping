@@ -9,8 +9,9 @@ A modern, full-stack e-commerce dashboard built with Next.js 15 frontend and Nes
 ![Stripe](https://img.shields.io/badge/Stripe-Payment-635BFF?style=flat-square&logo=stripe)
 
 ## 🎥 Demo Video
-
 <video src="./Screen%20Recording%202026-06-07%20172225.mp4" controls width="100%"></video>
+
+### Demo: https://nova-online-shopping.vercel.app/
 
 ## ✨ Features
 
