@@ -25,13 +25,6 @@ A modern, full-stack e-commerce dashboard built with Next.js 15 frontend and Nes
 - **Session Management** - Automatic login/logout
 - **Middleware Protection** - Route-level security
 
-### 📊 **Dashboard Features**
-
-- **Admin Panel** - Manage products, orders, and users
-- **Analytics** - Sales metrics and performance tracking
-- **Responsive Design** - Mobile-first UI/UX
-- **Search & Filtering** - Advanced product discovery
-
 ### 🎨 **Modern UI/UX**
 
 - **Tailwind CSS** - Utility-first styling
