@@ -71,3 +71,79 @@ export const updateUser = async (
     return { error: "An unexpected error occurred" };
   }
 };
+
+export const getUserOrders = async () => {
+  const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
+  if (!apiUrl) {
+    return [];
+  }
+
+  try {
+    const cookieStore = await cookies();
+    const id = cookieStore.get("user_id")?.value;
+    if (!id) {
+      return [];
+    }
+
+    const response = await authFetch(`${apiUrl}/user/${id}/orders`, {
+      method: "GET",
+      cache: "no-store",
+      next: {
+        tags: ["orders", `user-orders-${id}`],
+      },
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch user orders:", response);
+      return [];
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    return [];
+  }
+};
+
+export const confirmOrder = async (
+  userId: string | number,
+  sessionData: {
+    stripeSessionId: string;
+    total: number;
+    orderType: string;
+    productId?: number;
+    quantity?: number;
+  },
+) => {
+  const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
+  if (!apiUrl) {
+    return { error: "API URL not configured" };
+  }
+
+  try {
+    const response = await authFetch(`${apiUrl}/user/${userId}/orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(sessionData),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Failed to confirm order:", errText);
+      try {
+        const errJson = JSON.parse(errText);
+        return { error: errJson.message || "Failed to confirm order" };
+      } catch {
+        return { error: "Failed to confirm order" };
+      }
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error confirming order:", error);
+    return { error: "An unexpected error occurred" };
+  }
+};
+
