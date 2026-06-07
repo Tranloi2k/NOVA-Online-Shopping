@@ -2,6 +2,8 @@ import Link from "next/link";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { retrieveCheckoutSession } from "@/app/lib/checkout-sessions";
 import { ShopButton } from "@/app/ui/shop/button";
+import OrderConfirmTrigger from "./OrderConfirmTrigger";
+
 export const dynamic = "force-dynamic";
 export const fetchCache = "default-no-store";
 
@@ -23,6 +25,7 @@ export default async function CheckoutSuccess({
 
   return (
     <div className="shop-content-wrap flex min-h-[60vh] items-center justify-center py-16 md:py-24">
+      {sessionId && <OrderConfirmTrigger sessionId={sessionId} />}
       <div className="w-full max-w-md text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
           <CheckCircleIcon

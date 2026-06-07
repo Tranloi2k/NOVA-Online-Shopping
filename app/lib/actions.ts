@@ -60,3 +60,12 @@ export async function googleLogin(userData: { idToken: string }) {
 export async function refreshShopData() {
   refreshShopRoute();
 }
+
+import { revalidateTag, revalidatePath } from "next/cache";
+import { CACHE_TAGS } from "@/app/lib/cache-tags";
+
+export async function revalidateUserProfile(userId: string | number) {
+  revalidateTag(CACHE_TAGS.user);
+  revalidateTag(CACHE_TAGS.userId(userId));
+  revalidatePath("/account", "layout");
+}

@@ -3,11 +3,18 @@ import { syncCartBadge } from "@/app/lib/cart-events";
 import { addToCart } from "@/app/lib/services/cart";
 import type { ProductFormProduct } from "@/app/lib/definitions";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
-import { ShopButton } from "@/app/ui/shop/button";
-import { ShoppingBagIcon } from "@heroicons/react/24/outline";
+import {
+  TruckIcon,
+  ArrowPathIcon,
+  ShieldCheckIcon,
+  HeartIcon,
+} from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 import { useState } from "react";
 import clsx from "clsx";
+
+const COLOR_NAMES = ["Midnight", "Silver", "Ocean", "Rose", "Forest"];
 
 export default function ProductForm({
   product,
@@ -20,73 +27,79 @@ export default function ProductForm({
   );
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
-  const [cartMessage, setCartMessage] = useState<string | null>(null);
+  const [added, setAdded] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const { requireAuth, isAuthLoading } = useRequireAuth();
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
   const handleAddToCart = async () => {
-    if (!requireAuth()) {
-      return;
-    }
-
+    if (!requireAuth()) return;
     setIsAdding(true);
-    setCartMessage(null);
-
     try {
       const summary = await addToCart(product.id, quantity, {
         color: selectedColor,
         storage: selectedStorage,
       });
       syncCartBadge(summary.cart?.quantity ?? 0);
-      setCartMessage("Added to your bag");
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1800);
     } catch {
-      setCartMessage("Could not add to bag. Please sign in and try again.");
+      // no-op
     } finally {
       setIsAdding(false);
     }
   };
 
-  const optionClass = (selected: boolean) =>
-    clsx(
-      "rounded-shop border px-4 py-2.5 text-sm font-medium transition-all duration-shop ease-shop",
-      selected
-        ? "border-shop-text bg-shop-text text-white"
-        : "border-shop-border bg-shop-surface text-shop-secondary hover:border-shop-text hover:text-shop-text",
-    );
+  const colorIndex = product.colors.indexOf(selectedColor);
+  const colorName = COLOR_NAMES[colorIndex] || selectedColor;
 
   return (
-    <form className="mt-8">
-      <div>
-        <h2 className="font-mono-label text-shop-muted">Color</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {product.colors.map((color: string) => (
-            <button
-              key={color}
-              type="button"
-              onClick={() => setSelectedColor(color)}
-              className={optionClass(selectedColor === color)}
-            >
-              {color}
-            </button>
-          ))}
-        </div>
+    <div>
+      {/* Price */}
+      <div className="pdp-price">
+        <span className="price" style={{ fontSize: 34 }}>
+          {fmt(product.price)}
+        </span>
+      </div>
+      <div className="muted" style={{ fontSize: 13.5 }}>
+        or {fmt(Math.round(product.price / 12))}/mo with NovaPay · 0% APR
       </div>
 
+      {/* Color swatches */}
+      {product.colors.length > 0 && (
+        <div className="pdp-section">
+          <div className="pdp-label">
+            Finish —{" "}
+            <span style={{ color: "var(--ink)" }}>{colorName}</span>
+          </div>
+          <div className="swatches">
+            {product.colors.map((color, i) => (
+              <button
+                key={i}
+                className="swatch"
+                style={{ background: color }}
+                onClick={() => setSelectedColor(color)}
+                aria-label={COLOR_NAMES[i] || color}
+              >
+                {selectedColor === color && <span className="swatch-ring" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Storage chips */}
       {product.storageOptions.length > 0 && (
-        <div className="mt-6">
-          <h2 className="font-mono-label text-shop-muted">Storage</h2>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {product.storageOptions.map((storage: string) => (
+        <div className="pdp-section">
+          <div className="pdp-label">Storage</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {product.storageOptions.map((storage) => (
               <button
                 key={storage}
-                type="button"
                 onClick={() => setSelectedStorage(storage)}
-                className={optionClass(selectedStorage === storage)}
+                className={clsx("chip", selectedStorage === storage && "is-active")}
               >
                 {storage}
               </button>
@@ -95,81 +108,68 @@ export default function ProductForm({
         </div>
       )}
 
-      <div className="mt-6">
-        <h2 className="font-mono-label text-shop-muted">Quantity</h2>
-        <div className="mt-3 inline-flex items-center overflow-hidden rounded-shop border border-shop-border">
+      {/* Qty + Add to bag + Fav */}
+      <div className="pdp-buy">
+        <div className="qty qty-lg">
           <button
-            type="button"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="flex h-11 w-11 items-center justify-center text-shop-secondary transition-colors hover:bg-shop-surface-muted hover:text-shop-text"
+            aria-label="Decrease quantity"
           >
             −
           </button>
-          <span className="flex h-11 min-w-[3rem] items-center justify-center border-x border-shop-border text-sm font-medium text-shop-text">
-            {quantity}
-          </span>
+          <span className="mono-num">{quantity}</span>
           <button
-            type="button"
             onClick={() => setQuantity(quantity + 1)}
-            className="flex h-11 w-11 items-center justify-center text-shop-secondary transition-colors hover:bg-shop-surface-muted hover:text-shop-text"
+            aria-label="Increase quantity"
           >
             +
           </button>
         </div>
+        <button
+          className={clsx("btn btn-primary btn-lg pdp-add", added && "is-added")}
+          onClick={handleAddToCart}
+          disabled={isAdding || isAuthLoading}
+        >
+          {isAdding
+            ? "Adding…"
+            : added
+              ? "✓ Added to bag"
+              : `Add to bag · ${fmt(product.price * quantity)}`}
+        </button>
+        <button
+          className="icon-btn fav-lg"
+          onClick={() => setIsFavorite(!isFavorite)}
+          aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
+          style={{ color: isFavorite ? "var(--sale)" : "var(--ink)" }}
+        >
+          {isFavorite ? (
+            <HeartIconSolid style={{ width: 20, height: 20 }} />
+          ) : (
+            <HeartIcon style={{ width: 20, height: 20, strokeWidth: 1.5 }} />
+          )}
+        </button>
       </div>
 
-      <div className="shop-divider mt-8 pt-8">
-        <div className="flex items-baseline justify-between">
-          <span className="text-sm text-shop-secondary">Unit price</span>
-          <span className="text-sm font-medium text-shop-text">
-            {formatPrice(product.price)}
-          </span>
-        </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-sm font-medium text-shop-text">Total</span>
-          <span className="font-display text-xl font-medium text-shop-text">
-            {formatPrice(product.price * quantity)}
-          </span>
-        </div>
+      {/* Buy Now */}
+      <div style={{ marginTop: 12 }}>
+        <BuyNowButton product={product} quantity={quantity} />
+      </div>
 
-        {cartMessage && (
-          <p
-            className={clsx(
-              "mt-4 text-sm",
-              cartMessage.startsWith("Added")
-                ? "text-shop-text"
-                : "text-shop-error",
-            )}
-            role="status"
-          >
-            {cartMessage}
-          </p>
-        )}
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <ShopButton
-            type="button"
-            variant="outline"
-            size="lg"
-            className="w-full"
-            disabled={isAdding || isAuthLoading}
-            onClick={handleAddToCart}
-          >
-            {isAdding ? (
-              <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-shop-text/30 border-t-shop-text" />
-                Adding...
-              </>
-            ) : (
-              <>
-                <ShoppingBagIcon className="h-5 w-5" strokeWidth={1.5} />
-                Add to bag
-              </>
-            )}
-          </ShopButton>
-          <BuyNowButton product={product} quantity={quantity} />
+      {/* Perks */}
+      <div className="pdp-perks">
+        <div>
+          <TruckIcon style={{ width: 16, height: 16, strokeWidth: 1.5 }} />
+          Free 2-day shipping
+        </div>
+        <div>
+          <ArrowPathIcon style={{ width: 16, height: 16, strokeWidth: 1.5 }} />
+          30-day returns
+        </div>
+        <div>
+          <ShieldCheckIcon style={{ width: 16, height: 16, strokeWidth: 1.5 }} />
+          2-year warranty
         </div>
       </div>
-    </form>
+    </div>
   );
 }

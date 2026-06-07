@@ -1,5 +1,5 @@
 import "@/app/ui/global.css";
-import { inter, outfit } from "@/app/ui/fonts";
+import { inter, outfit, sora, manrope } from "@/app/ui/fonts";
 import type { Metadata, Viewport } from "next";
 import Providers from "@/app/providers";
 import { rootMetadata } from "@/app/lib/seo";
@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${outfit.variable} font-sans antialiased`}
+        className={`${inter.variable} ${outfit.variable} ${sora.variable} ${manrope.variable} font-sans antialiased`}
       >
         <Providers>{children}</Providers>
       </body>

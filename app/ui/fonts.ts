@@ -1,4 +1,4 @@
-import { Inter, Outfit, Lusitana } from "next/font/google";
+import { Inter, Outfit, Lusitana, Sora, Manrope } from "next/font/google";
 
 export const inter = Inter({
   subsets: ["latin"],
@@ -16,5 +16,19 @@ export const outfit = Outfit({
 export const lusitana = Lusitana({
   subsets: ["latin"],
   weight: ["400", "700"],
+  display: "swap",
+});
+
+export const sora = Sora({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-sora",
+  display: "swap",
+});
+
+export const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
   display: "swap",
 });

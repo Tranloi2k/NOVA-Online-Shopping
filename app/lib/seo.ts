@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import type { ProductListItem } from "@/app/lib/definitions";
 
+export { productPath, productSlug } from "@/app/lib/product-path";
 export const SITE_NAME = "NOVA";
 export const SITE_TAGLINE = "Premium Tech Store";
 export const DEFAULT_TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
@@ -88,18 +88,7 @@ export function absoluteImageUrl(src: string): string {
   return new URL(path, getSiteUrl()).toString();
 }
 
-export function productSlug(name: string, id: number | string): string {
-  return `${name.replace(/ /g, "-")}.${id}`;
-}
-
-export function productPath(
-  product: Pick<ProductListItem, "name"> & { id: number | string },
-): string {
-  return `/products/${productSlug(product.name, product.id)}`;
-}
-
-/** Pages that must not appear in search results. */
-export const NOINDEX_PATH_PREFIXES = [
+/** Pages that must not appear in search results. */export const NOINDEX_PATH_PREFIXES = [
   "/cart",
   "/login",
   "/checkout",

@@ -10,39 +10,44 @@ export default function SlideImage({
   images: string[];
   name: string;
 }) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const thumbs = images.slice(0, 3);
 
   return (
     <div>
-      <div className="shop-card relative aspect-square overflow-hidden bg-shop-surface-muted">
+      <div className="pdp-stage">
         <Image
-          src={images[currentImageIndex]}
+          src={images[currentIndex]}
           alt={name}
           fill
           className="object-contain p-8 md:p-12"
           sizes="(max-width: 768px) 100vw, 50vw"
           priority
+          style={{ position: "absolute", inset: 0 }}
         />
       </div>
       {images.length > 1 && (
-        <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-5">
-          {images.map((image: string, index: number) => (
+        <div className="pdp-thumbs">
+          {thumbs.map((image, index) => (
             <button
               key={index}
-              onClick={() => setCurrentImageIndex(index)}
-              className={clsx(
-                "aspect-square overflow-hidden rounded-shop border bg-shop-surface-muted transition-all duration-shop ease-shop",
-                currentImageIndex === index
-                  ? "border-shop-text ring-1 ring-shop-text"
-                  : "border-shop-border-subtle hover:border-shop-border",
-              )}
+              onClick={() => setCurrentIndex(index)}
+              className={clsx("pdp-thumb tile")}
+              style={{
+                aspectRatio: "1/1",
+                outline:
+                  currentIndex === index
+                    ? "2px solid var(--accent)"
+                    : "2px solid transparent",
+                outlineOffset: 2,
+              }}
             >
-              <div className="relative h-full w-full">
+              <div style={{ position: "relative", width: "60%", height: "60%" }}>
                 <Image
                   src={image}
                   alt={`${name} ${index + 1}`}
                   fill
-                  className="object-contain p-2"
+                  className="object-contain"
                   sizes="80px"
                 />
               </div>

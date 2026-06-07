@@ -27,13 +27,6 @@ A modern, full-stack e-commerce dashboard built with Next.js 15 frontend and Nes
 - **Session Management** - Automatic login/logout
 - **Middleware Protection** - Route-level security
 
-### 📊 **Dashboard Features**
-
-- **Admin Panel** - Manage products, orders, and users
-- **Analytics** - Sales metrics and performance tracking
-- **Responsive Design** - Mobile-first UI/UX
-- **Search & Filtering** - Advanced product discovery
-
 ### 🎨 **Modern UI/UX**
 
 - **Tailwind CSS** - Utility-first styling
@@ -83,7 +76,7 @@ Stripe account
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/nextjs-dashboard.git
+git clone https://github.com/tranloi2k/nextjs-dashboard.git
 cd nextjs-dashboard
 ```
 
@@ -118,7 +111,7 @@ NEXTAUTH_URL="http://localhost:3000"
 4. **Start NestJS Backend**
 
 ```bash
-# Make sure your NestJS backend is running on port 8080
+# Make sure your NestJS backend is running on port 5000
 # The backend should expose API endpoints at:
 # http://localhost:5000/api/products
 # http://localhost:5000/api/users
@@ -230,7 +223,7 @@ Declined: 4000 0000 0000 0002
 ### **Backend Deployment**
 
 - Deploy your NestJS backend separately
-- Update `NESTJS_API_URL` to production backend URL
+- Update `NEXT_PUBLIC_EXTERNAL_API_URL` to production backend URL
 - Ensure CORS allows your production frontend domain
 
 ### **Environment Variables for Production**
@@ -267,7 +260,7 @@ Declined: 4000 0000 0000 0002
 
 **Your Name**
 
-- GitHub: [@yourusername](https://github.com/tranloi2k)
+- GitHub: [@tranloi2k](https://github.com/tranloi2k)
 - Email: tranloi162710@gmail.com
 
 ## 🙏 Acknowledgments

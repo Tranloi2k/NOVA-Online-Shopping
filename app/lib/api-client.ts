@@ -1,21 +1,17 @@
 import {
-  ensureValidAccessToken,
-  refreshTokens,
+  fetchTokenRefresh,
+  resolveAccessToken,
+  trySetAuthCookies,
 } from "@/app/lib/auth-tokens";
+import { REFRESH_TOKEN_COOKIE } from "@/app/lib/auth-constants";
 import { cookies } from "next/headers";
 
 export async function getAuthHeaders(
   extra?: Record<string, string>,
 ): Promise<HeadersInit> {
-  await ensureValidAccessToken();
+  const headers: Record<string, string> = { ...extra };
 
-  const cookieStore = await cookies();
-  const headers: Record<string, string> = {
-    Cookie: cookieStore.toString(),
-    ...extra,
-  };
-
-  const accessToken = cookieStore.get("access_token")?.value;
+  const accessToken = await resolveAccessToken();
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -27,8 +23,6 @@ export async function authFetch(
   url: string,
   init?: RequestInit,
 ): Promise<Response> {
-  await ensureValidAccessToken();
-
   const extra =
     init?.headers instanceof Headers
       ? Object.fromEntries(init.headers.entries())
@@ -40,11 +34,25 @@ export async function authFetch(
   });
 
   if (response.status === 401) {
-    const refreshed = await refreshTokens();
-    if (refreshed) {
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
+    const tokens = refreshToken
+      ? await fetchTokenRefresh(refreshToken)
+      : null;
+
+    if (tokens) {
+      await trySetAuthCookies({
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        userId: tokens.userId,
+      });
+
       response = await fetch(url, {
         ...init,
-        headers: await getAuthHeaders(extra),
+        headers: {
+          ...extra,
+          Authorization: `Bearer ${tokens.accessToken}`,
+        },
       });
     }
   }

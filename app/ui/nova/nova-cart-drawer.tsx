@@ -1,0 +1,171 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Icon } from "@/app/ui/nova/nova-icons";
+import { formatMoney } from "@/app/ui/nova/nova-utils";
+import { useCartDrawer } from "@/app/ui/nova/cart-drawer-context";
+import { getCartSummary } from "@/app/lib/services/cart";
+import type { CartItem, CartSummary } from "@/app/lib/definitions";
+
+export function NovaCartDrawer() {
+  const { isOpen, close } = useCartDrawer();
+  const [summary, setSummary] = useState<CartSummary | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    getCartSummary()
+      .then((data) => setSummary(data))
+      .catch(() => setSummary(null))
+      .finally(() => setLoading(false));
+  }, [isOpen]);
+
+  const items: CartItem[] = summary?.cart?.items ?? [];
+  const subtotal = summary?.finalPrice ?? 0;
+
+  return (
+    <div className={`drawer-scrim${isOpen ? " open" : ""}`} onClick={close}>
+      <aside
+        className={`drawer${isOpen ? " open" : ""}`}
+        onClick={(e) => e.stopPropagation()}
+        aria-label="Shopping bag"
+      >
+        <div className="drawer-head">
+          <h3 style={{ fontSize: 20 }}>Your bag</h3>
+          <button className="icon-btn" onClick={close} aria-label="Close">
+            <Icon name="close" size={22} />
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="drawer-empty">
+            <div className="empty-glyph">
+              <Icon name="cart" size={30} />
+            </div>
+            <p style={{ fontWeight: 700, fontSize: 17 }}>Loading…</p>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="drawer-empty">
+            <div className="empty-glyph">
+              <Icon name="cart" size={30} />
+            </div>
+            <p style={{ fontWeight: 700, fontSize: 17 }}>Your bag is empty</p>
+            <p className="muted" style={{ fontSize: 14 }}>
+              Find something you&apos;ll love.
+            </p>
+            <button
+              className="btn btn-dark"
+              onClick={close}
+              style={{ marginTop: 8 }}
+            >
+              <Link href="/products" onClick={close}>
+                Start shopping
+              </Link>
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="drawer-list">
+              {items.map((it) => (
+                <div className="drawer-item" key={it.id}>
+                  <div className="drawer-thumb">
+                    <div
+                      className="tile"
+                      style={{ aspectRatio: "1 / 1", position: "relative" }}
+                    >
+                      <Image
+                        src={it.product.image}
+                        alt={it.product.name}
+                        fill
+                        className="object-contain p-2"
+                        sizes="74px"
+                      />
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 10,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: 700,
+                          fontSize: 14.5,
+                          lineHeight: 1.25,
+                        }}
+                      >
+                        {it.product.name}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginTop: 10,
+                      }}
+                    >
+                      <span className="muted" style={{ fontSize: 13 }}>
+                        Qty: {it.quantity}
+                      </span>
+                      <span className="price" style={{ fontSize: 15 }}>
+                        {formatMoney(it.price * it.quantity)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="drawer-foot">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
+                <span className="muted">Subtotal</span>
+                <span className="price" style={{ fontSize: 20 }}>
+                  {formatMoney(subtotal)}
+                </span>
+              </div>
+              <p
+                className="muted"
+                style={{ fontSize: 12.5, marginBottom: 14 }}
+              >
+                Shipping &amp; taxes calculated at checkout.
+              </p>
+              <Link
+                href="/checkout"
+                onClick={close}
+                className="btn btn-primary btn-block btn-lg"
+                style={{ display: "flex", justifyContent: "center" }}
+              >
+                Checkout
+              </Link>
+              <Link
+                href="/cart"
+                onClick={close}
+                className="btn btn-ghost btn-block"
+                style={{
+                  marginTop: 10,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                View full bag
+              </Link>
+            </div>
+          </>
+        )}
+      </aside>
+    </div>
+  );
+}

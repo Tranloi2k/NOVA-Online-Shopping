@@ -1,10 +1,12 @@
 {
-  "private": true,
+  "name": "nova-online-shopping-nextjs",
+  "version": "0.1.0",
   "scripts": {
     "build": "next build",
     "dev": "next dev --turbopack",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "npm run lint"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -12,11 +14,11 @@
     "@tailwindcss/forms": "^0.5.10",
     "autoprefixer": "10.4.20",
     "clsx": "^2.1.1",
-    "next": "latest",
+    "next": "15.5.7",
     "next-auth": "5.0.0-beta.29",
     "postcss": "8.5.1",
-    "react": "latest",
-    "react-dom": "latest",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "stripe": "^18.5.0",
     "tailwindcss": "3.4.17",
     "typescript": "5.7.3",
