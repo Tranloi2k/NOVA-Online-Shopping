@@ -71,7 +71,7 @@ export default async function ProductPage(props: {
   if (product.detailInformation) {
     try {
       if (typeof product.detailInformation === "object") {
-        prodDetail = product.detailInformation as any;
+        prodDetail = product.detailInformation as Record<string, unknown>;
       } else {
         const parsed = JSON.parse(product.detailInformation);
         prodDetail = typeof parsed === "string" ? JSON.parse(parsed) : parsed;
