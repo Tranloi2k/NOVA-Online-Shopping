@@ -6,8 +6,9 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { useCartDrawer } from "@/app/ui/nova/cart-drawer-context";
-import { CART_UPDATED_EVENT } from "@/app/lib/cart-events";
+import { CART_UPDATED_EVENT, syncCartBadge } from "@/app/lib/cart-events";
 import { categoryNavHref } from "@/app/lib/product-filters";
+import { getCartSummary } from "@/app/lib/services/cart";
 
 const cats = [
   { id: "smartphones", label: "Phones" },
@@ -31,7 +32,7 @@ function subscribeCartCount(onStoreChange: () => void) {
 
 export default function NovaHeader() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { toggle: toggleCart } = useCartDrawer();
 
   const cartCount = useSyncExternalStore(
@@ -49,6 +50,29 @@ export default function NovaHeader() {
     window.addEventListener("scroll", f, { passive: true });
     return () => window.removeEventListener("scroll", f);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (status === "authenticated") {
+      getCartSummary()
+        .then((summary) => {
+          if (!cancelled) {
+            syncCartBadge(summary.cart?.quantity ?? 0);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to sync cart on login:", err);
+          if (!cancelled) {
+            syncCartBadge(0);
+          }
+        });
+    } else if (status === "unauthenticated") {
+      syncCartBadge(0);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [status]);
 
   const user = session?.user;
   const initials = user?.name
