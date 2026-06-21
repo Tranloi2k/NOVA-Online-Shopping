@@ -4,8 +4,8 @@ import { authFetch } from "@/app/lib/api-client";
 import { CACHE_TAGS } from "@/app/lib/cache-tags";
 import type { CartSummary } from "@/app/lib/definitions";
 import { revalidateAfterCartChange } from "@/app/lib/revalidate-shop";
-import { cookies } from "next/headers";
 import { unauthorized } from "next/navigation";
+import { resolveUserId } from "@/app/lib/auth-tokens";
 
 const EMPTY_CART: CartSummary = {
   cart: null,
@@ -16,8 +16,7 @@ const EMPTY_CART: CartSummary = {
 };
 
 async function revalidateCartCaches(options?: { productId?: string | number }) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("user_id")?.value;
+  const userId = await resolveUserId();
 
   revalidateAfterCartChange({
     userId,
@@ -36,8 +35,7 @@ async function getApiUrl(): Promise<string> {
 
 async function fetchCartResponse(): Promise<Response> {
   const apiUrl = await getApiUrl();
-  const cookie = await cookies();
-  const userId = cookie.get("user_id")?.value ?? "";
+  const userId = await resolveUserId() ?? "";
 
   const tags: string[] = [CACHE_TAGS.cart];
   if (userId) {

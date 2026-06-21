@@ -67,6 +67,9 @@ export async function setAuthCookies(tokens: TokenPair) {
     cookieStore.set({
       name: USER_ID_COOKIE,
       value: String(tokens.userId),
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
       path: "/",
       maxAge: REFRESH_TOKEN_MAX_AGE,
     });
@@ -98,13 +101,17 @@ export async function clearAuthCookies() {
     USER_ID_COOKIE,
   ];
 
+  const isProd = process.env.NODE_ENV === "production";
+
   for (const name of cookieNames) {
     cookieStore.set({
       name,
       value: "",
       path: "/",
       maxAge: 0,
-      httpOnly: name !== USER_ID_COOKIE,
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
     });
   }
 }
@@ -189,4 +196,20 @@ export async function resolveAccessToken(): Promise<string | undefined> {
 /** True when a usable access token exists (may refresh without persisting cookies). */
 export async function ensureValidAccessToken(): Promise<boolean> {
   return !!(await resolveAccessToken());
+}
+
+export async function resolveUserId(): Promise<string | undefined> {
+  const token = await resolveAccessToken();
+  if (!token) return undefined;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return undefined;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
+    const payload = JSON.parse(jsonPayload);
+    return payload.sub ? String(payload.sub) : undefined;
+  } catch {
+    return undefined;
+  }
 }
