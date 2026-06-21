@@ -109,6 +109,7 @@ export type ProductFormProduct = {
   id: string;
   name: string;
   price: number;
+  stock: number;
   colors: string[];
   storageOptions: string[];
 };
@@ -127,6 +128,7 @@ export type CartProduct = {
   image: string;
   price: number;
   discount: number;
+  stock: number;
 };
 
 export type CartItem = {
@@ -135,6 +137,8 @@ export type CartItem = {
   productId: number;
   quantity: number;
   price: number;
+  color?: string;
+  storage?: string;
   product: CartProduct;
 };
 

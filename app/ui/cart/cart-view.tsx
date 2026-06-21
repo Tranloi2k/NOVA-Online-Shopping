@@ -36,6 +36,21 @@ function lineTotal(item: CartItem) {
   return Number(item.price) * item.quantity;
 }
 
+function maxQuantityForItem(item: CartItem, allItems: CartItem[]) {
+  const siblingQuantity = allItems
+    .filter((other) => other.productId === item.productId && other.id !== item.id)
+    .reduce((sum, other) => sum + other.quantity, 0);
+
+  return Math.max(1, item.product.stock - siblingQuantity);
+}
+
+function variantLabel(item: CartItem) {
+  const parts: string[] = [];
+  if (item.storage) parts.push(item.storage);
+  if (item.color) parts.push("Custom finish");
+  return parts.join(" · ");
+}
+
 export default function CartView({
   initialSummary,
 }: {
@@ -67,8 +82,12 @@ export default function CartView({
       try {
         const next = await updateCartItem(item.id, nextQuantity);
         applySummary(next);
-      } catch {
-        setError("Could not update quantity. Please try again.");
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not update quantity. Please try again.",
+        );
       }
     });
   };
@@ -197,6 +216,18 @@ export default function CartView({
                     <p className="mt-1 text-sm text-shop-secondary">
                       {formatPrice(Number(item.price))} each
                     </p>
+                    {(item.color || item.storage) && (
+                      <p className="mt-1 flex items-center gap-2 text-xs text-shop-muted">
+                        {item.color ? (
+                          <span
+                            className="inline-block h-3.5 w-3.5 rounded-full border border-shop-border"
+                            style={{ background: item.color }}
+                            aria-hidden
+                          />
+                        ) : null}
+                        <span>{variantLabel(item)}</span>
+                      </p>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -228,7 +259,8 @@ export default function CartView({
                       onClick={() =>
                         handleQuantityChange(item, item.quantity + 1)
                       }
-                      className="flex h-9 w-9 items-center justify-center text-shop-secondary transition-colors hover:bg-shop-surface-muted"
+                      disabled={item.quantity >= maxQuantityForItem(item, items)}
+                      className="flex h-9 w-9 items-center justify-center text-shop-secondary transition-colors hover:bg-shop-surface-muted disabled:opacity-40"
                     >
                       +
                     </button>

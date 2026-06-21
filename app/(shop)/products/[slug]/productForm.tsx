@@ -28,8 +28,11 @@ export default function ProductForm({
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const { requireAuth, isAuthLoading } = useRequireAuth();
+
+  const maxQuantity = Math.max(1, Number(product.stock) || 0);
 
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
@@ -37,6 +40,7 @@ export default function ProductForm({
   const handleAddToCart = async () => {
     if (!requireAuth()) return;
     setIsAdding(true);
+    setError(null);
     try {
       const summary = await addToCart(product.id, quantity, {
         color: selectedColor,
@@ -45,8 +49,10 @@ export default function ProductForm({
       syncCartBadge(summary.cart?.quantity ?? 0);
       setAdded(true);
       setTimeout(() => setAdded(false), 1800);
-    } catch {
-      // no-op
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not add to bag. Please try again.",
+      );
     } finally {
       setIsAdding(false);
     }
@@ -114,13 +120,15 @@ export default function ProductForm({
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             aria-label="Decrease quantity"
+            disabled={quantity <= 1}
           >
             −
           </button>
           <span className="mono-num">{quantity}</span>
           <button
-            onClick={() => setQuantity(quantity + 1)}
+            onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
             aria-label="Increase quantity"
+            disabled={quantity >= maxQuantity}
           >
             +
           </button>
@@ -128,13 +136,15 @@ export default function ProductForm({
         <button
           className={clsx("btn btn-primary btn-lg pdp-add", added && "is-added")}
           onClick={handleAddToCart}
-          disabled={isAdding || isAuthLoading}
+          disabled={isAdding || isAuthLoading || maxQuantity < 1}
         >
-          {isAdding
-            ? "Adding…"
-            : added
-              ? "✓ Added to bag"
-              : `Add to bag · ${fmt(product.price * quantity)}`}
+          {maxQuantity < 1
+            ? "Out of stock"
+            : isAdding
+              ? "Adding…"
+              : added
+                ? "✓ Added to bag"
+                : `Add to bag · ${fmt(product.price * quantity)}`}
         </button>
         <button
           className="icon-btn fav-lg"
@@ -149,6 +159,17 @@ export default function ProductForm({
           )}
         </button>
       </div>
+
+      {error && (
+        <p className="mt-3 text-sm" style={{ color: "var(--sale)" }} role="alert">
+          {error}
+        </p>
+      )}
+      {maxQuantity > 0 && maxQuantity <= 5 && (
+        <p className="muted" style={{ fontSize: 13, marginTop: 8 }}>
+          Only {maxQuantity} left in stock
+        </p>
+      )}
 
       {/* Buy Now */}
       <div style={{ marginTop: 12 }}>

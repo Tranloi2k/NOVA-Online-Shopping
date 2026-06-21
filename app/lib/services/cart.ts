@@ -33,6 +33,21 @@ async function getApiUrl(): Promise<string> {
   return apiUrl;
 }
 
+async function readApiError(res: Response, fallback: string): Promise<string> {
+  try {
+    const body = (await res.json()) as { message?: string | string[] };
+    if (Array.isArray(body.message)) {
+      return body.message.join(", ");
+    }
+    if (typeof body.message === "string" && body.message.length > 0) {
+      return body.message;
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return fallback;
+}
+
 async function fetchCartResponse(): Promise<Response> {
   const apiUrl = await getApiUrl();
   const userId = await resolveUserId() ?? "";
@@ -92,8 +107,8 @@ export async function addToCart(
     body: JSON.stringify({
       productId: Number(productId),
       quantity,
-      ...(options?.color ? { color: options.color } : {}),
-      ...(options?.storage ? { storage: options.storage } : {}),
+      color: options?.color ?? "",
+      storage: options?.storage ?? "",
     }),
   });
 
@@ -102,7 +117,7 @@ export async function addToCart(
   }
 
   if (!res.ok) {
-    throw new Error("Failed to add to cart");
+    throw new Error(await readApiError(res, "Failed to add to cart"));
   }
 
   const data: CartSummary = await res.json();
@@ -127,7 +142,7 @@ export async function updateCartItem(
   }
 
   if (!res.ok) {
-    throw new Error("Failed to update cart item");
+    throw new Error(await readApiError(res, "Failed to update cart item"));
   }
 
   const data: CartSummary = await res.json();

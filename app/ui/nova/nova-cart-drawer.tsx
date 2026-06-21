@@ -152,6 +152,13 @@ export function NovaCartDrawer() {
                         {it.product.name}
                       </span>
                     </div>
+                    {(it.storage || it.color) && (
+                      <p className="muted" style={{ fontSize: 12, marginTop: 4 }}>
+                        {[it.storage, it.color ? "Custom finish" : ""]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    )}
                     <div
                       style={{
                         display: "flex",
