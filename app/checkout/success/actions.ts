@@ -15,12 +15,16 @@ export async function confirmCheckoutOrderAction(sessionId: string) {
       return { success: false, error: "Not logged in" };
     }
 
+    if (session.payment_status !== "paid") {
+      return { success: false, error: "Payment not completed" };
+    }
+
     const orderType = session.metadata?.order_type === "cart" ? "cart" : "direct";
     const productId = session.metadata?.product_id ? Number(session.metadata.product_id) : undefined;
     const quantity = session.metadata?.quantity ? Number(session.metadata.quantity) : undefined;
     const total = session.amount_total ? session.amount_total / 100 : 0;
 
-    await confirmOrder(userId, {
+    await confirmOrder({
       stripeSessionId: session.id,
       total,
       orderType,

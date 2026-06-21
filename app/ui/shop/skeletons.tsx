@@ -1,11 +1,16 @@
 export function ProductCardSkeleton() {
   return (
-    <div className="shop-card overflow-hidden">
-      <div className="aspect-[4/5] animate-pulse bg-shop-surface-muted" />
-      <div className="space-y-3 p-4">
-        <div className="h-4 w-3/4 animate-pulse rounded-sm bg-shop-surface-muted" />
-        <div className="h-3 w-1/2 animate-pulse rounded-sm bg-shop-surface-muted" />
-        <div className="h-5 w-1/3 animate-pulse rounded-sm bg-shop-surface-muted" />
+    <div className="card prod-card">
+      <div className="tile" style={{ aspectRatio: "4 / 3" }}>
+        <div className="h-full w-full animate-pulse bg-shop-surface-muted" />
+      </div>
+      <div className="prod-body space-y-3">
+        <div className="h-[18px] w-3/4 animate-pulse rounded bg-shop-surface-muted" style={{ marginTop: 3 }} />
+        <div className="h-3 w-1/2 animate-pulse rounded bg-shop-surface-muted" style={{ marginTop: 7 }} />
+        <div className="prod-foot" style={{ marginTop: 16 }}>
+          <div className="h-6 w-1/3 animate-pulse rounded bg-shop-surface-muted" />
+          <div className="h-[38px] w-[38px] animate-pulse rounded-full bg-shop-surface-muted" />
+        </div>
       </div>
     </div>
   );
@@ -13,7 +18,7 @@ export function ProductCardSkeleton() {
 
 export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
+    <div className="prod-grid" style={{ marginTop: 28 }}>
       {Array.from({ length: count }).map((_, i) => (
         <ProductCardSkeleton key={i} />
       ))}

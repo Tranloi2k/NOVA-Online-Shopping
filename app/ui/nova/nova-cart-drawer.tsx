@@ -9,6 +9,7 @@ import { useCartDrawer } from "@/app/ui/nova/cart-drawer-context";
 import { getCartSummary } from "@/app/lib/services/cart";
 import type { CartItem, CartSummary } from "@/app/lib/definitions";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
+import { getSafeImageUrl } from "@/app/lib/utils";
 
 export function NovaCartDrawer() {
   const { isOpen, close } = useCartDrawer();
@@ -111,20 +112,26 @@ export function NovaCartDrawer() {
         ) : (
           <>
             <div className="drawer-list">
-              {items.map((it) => (
+              {items.map((it) => {
+                const imgSrc = getSafeImageUrl(it.product.image);
+                return (
                 <div className="drawer-item" key={it.id}>
                   <div className="drawer-thumb">
                     <div
                       className="tile"
                       style={{ aspectRatio: "1 / 1", position: "relative" }}
                     >
-                      <Image
-                        src={it.product.image}
-                        alt={it.product.name}
-                        fill
-                        className="object-contain p-2"
-                        sizes="74px"
-                      />
+                      {imgSrc ? (
+                        <Image
+                          src={imgSrc}
+                          alt={it.product.name}
+                          fill
+                          className="object-contain p-2"
+                          sizes="74px"
+                        />
+                      ) : (
+                        <div style={{ width: "100%", height: "100%", background: "var(--surface-muted)" }} />
+                      )}
                     </div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -162,7 +169,8 @@ export function NovaCartDrawer() {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
             <div className="drawer-foot">
               <div

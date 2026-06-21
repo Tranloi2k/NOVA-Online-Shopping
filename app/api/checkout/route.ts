@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   const checkoutAuth = await getCheckoutAuth();
-  if (!checkoutAuth.authorized) {
+  if (!checkoutAuth.authorized || !checkoutAuth.userId) {
     return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   }
 
@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
       product,
       parseInt(quantity, 10),
       customerEmail ?? checkoutAuth.customerEmail,
+      {
+        user_id: checkoutAuth.userId ?? "",
+      },
     );
 
     if (!stripeSession.url) {

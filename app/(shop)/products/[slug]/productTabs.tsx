@@ -27,7 +27,7 @@ export default function ProductTabs({
     ["reviews", "Reviews"],
   ];
 
-  const totalReviews = reviews?.length ?? 0;
+  const totalReviews = reviews && reviews.length > 0 ? reviews.length : reviewCount;
   const averageRating = (() => {
     if (reviews && reviews.length > 0) {
       const avg =

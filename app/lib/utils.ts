@@ -7,9 +7,20 @@ import { Revenue } from './definitions';
  */
 export function getSafeImageUrl(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
-    return url;
+
+  const trimmed = url.trim();
+  if (!trimmed || trimmed === '-' || trimmed === 'null' || trimmed === 'undefined') {
+    return undefined;
   }
+
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('/')
+  ) {
+    return trimmed;
+  }
+
   return undefined;
 }
 

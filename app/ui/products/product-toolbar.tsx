@@ -7,7 +7,7 @@ import {
 } from "@/app/lib/product-filters";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export default function ProductToolbar() {
+export default function ProductToolbar({ disabled = false }: { disabled?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -26,7 +26,7 @@ export default function ProductToolbar() {
   };
 
   return (
-    <div className="shop-toolbar">
+    <div className={`shop-toolbar ${disabled ? "pointer-events-none opacity-60" : ""}`}>
       <div className="chip-row">
         {PRODUCT_CATEGORIES.map((cat) => (
           <button
@@ -34,8 +34,9 @@ export default function ProductToolbar() {
             type="button"
             className={`chip${activeCategory === cat.id ? " is-active" : ""}`}
             onClick={() =>
-              pushParams({ category: cat.id === "all" ? null : cat.id })
+              !disabled && pushParams({ category: cat.id === "all" ? null : cat.id })
             }
+            disabled={disabled}
           >
             {cat.label}
           </button>
@@ -47,7 +48,8 @@ export default function ProductToolbar() {
           <span className="muted">Sort</span>
           <select
             value={activeSort}
-            onChange={(e) => pushParams({ sort: e.target.value })}
+            onChange={(e) => !disabled && pushParams({ sort: e.target.value })}
+            disabled={disabled}
             aria-label="Sort products"
           >
             {SORT_OPTIONS.map((opt) => (

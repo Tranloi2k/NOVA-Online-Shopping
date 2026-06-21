@@ -258,47 +258,69 @@ export async function handleStripeWebhook(
 // Handle successful payment
 async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
   try {
-    console.log("🎉 Processing successful payment for session:", session.id);
+    if (session.payment_status !== "paid") {
+      console.log(
+        "Skipping order confirmation — payment not completed:",
+        session.id,
+        session.payment_status,
+      );
+      return;
+    }
 
-    // Extract metadata
-    const { product_id, quantity, order_type } = session.metadata || {};
+    const { product_id, quantity, order_type, user_id } = session.metadata || {};
+    const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
+    const webhookSecret = process.env.INTERNAL_WEBHOOK_SECRET;
 
-    // Update database with successful payment
-    // Example implementations:
+    if (!apiUrl || !webhookSecret) {
+      console.error(
+        "Missing NEXT_PUBLIC_EXTERNAL_API_URL or INTERNAL_WEBHOOK_SECRET for webhook order confirmation",
+      );
+      return;
+    }
 
-    if (order_type === "cart") {
-      // Handle cart order
-      console.log("📦 Processing cart order");
-      // await updateCartOrderStatus(session.id, 'paid');
-      revalidateAfterCartChange({ refreshRoute: false, source: "handler" });
+    if (!user_id) {
+      console.error("No user_id in Stripe session metadata:", session.id);
+      return;
+    }
+
+    const orderType = order_type === "cart" ? "cart" : "direct";
+    const response = await fetch(`${apiUrl}/internal/orders/confirm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-webhook-secret": webhookSecret,
+      },
+      body: JSON.stringify({
+        userId: Number(user_id),
+        stripeSessionId: session.id,
+        orderType,
+        productId: product_id ? Number(product_id) : undefined,
+        quantity: quantity ? Number(quantity) : undefined,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Webhook order confirmation failed:", errText);
+      return;
+    }
+
+    console.log("Order confirmed via webhook for session:", session.id);
+
+    if (orderType === "cart") {
+      revalidateAfterCartChange({ userId: user_id, refreshRoute: false, source: "handler" });
     } else if (product_id) {
-      // Handle single product order
-      console.log(`📱 Processing product order: ${product_id} x ${quantity}`);
-      // await updateProductOrderStatus(product_id, session.id, 'paid');
       revalidateAfterCartChange({
         productId: product_id,
+        userId: user_id,
         refreshRoute: false,
         source: "handler",
       });
     }
 
     revalidateProductsCatalog({ refreshRoute: false, source: "handler" });
-
-    // Send confirmation email
-    if (session.customer_email) {
-      console.log(
-        `📧 Sending confirmation email to: ${session.customer_email}`
-      );
-      // await sendOrderConfirmationEmail(session.customer_email, session);
-    }
-
-    // Update inventory if needed
-    if (product_id && quantity) {
-      console.log(`📊 Updating inventory for product: ${product_id}`);
-      // await updateProductInventory(product_id, parseInt(quantity));
-    }
   } catch (error) {
-    console.error("❌ Error handling successful payment:", error);
+    console.error("Error handling successful payment:", error);
   }
 }
 

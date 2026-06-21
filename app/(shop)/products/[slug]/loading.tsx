@@ -1,4 +1,11 @@
 import Link from "next/link";
+import {
+  HeartIcon,
+  ArrowRightIcon,
+  TruckIcon,
+  ArrowPathIcon,
+  ShieldCheckIcon,
+} from "@heroicons/react/24/outline";
 
 export default function Loading() {
   return (
@@ -13,61 +20,137 @@ export default function Loading() {
         </nav>
 
         {/* Product detail layout — everything below is API data */}
-        <div className="pdp-grid mt-6">
+        <div className="pdp-grid">
           {/* Gallery skeleton */}
           <div className="pdp-gallery">
             <div className="pdp-stage animate-pulse bg-shop-surface-muted" />
-            <div className="pdp-thumbs mt-3">
+            <div className="pdp-thumbs">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="aspect-square animate-pulse rounded-shop-lg bg-shop-surface-muted"
+                  className="pdp-thumb tile aspect-square animate-pulse bg-shop-surface-muted"
                 />
               ))}
             </div>
           </div>
 
           {/* Info panel skeleton */}
-          <div className="pdp-info animate-pulse space-y-4 pt-2">
+          <div className="pdp-info space-y-4 pt-2">
             {/* Brand label */}
-            <div className="h-3 w-10 rounded-sm bg-shop-border-subtle" />
+            <div
+              className="muted"
+              style={{ fontWeight: 700, fontSize: "13.5px", letterSpacing: ".02em" }}
+            >
+              NOVA
+            </div>
+            
             {/* Product name */}
-            <div className="h-10 w-3/4 rounded-sm bg-shop-surface-muted" />
+            <div className="animate-pulse" style={{ marginTop: 6, height: 42, width: "75%", borderRadius: "var(--r-xs)", backgroundColor: "var(--hair-soft)" }} />
+
             {/* Stars */}
-            <div className="flex items-center gap-2">
+            <div className="animate-pulse" style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8 }}>
               <div className="h-4 w-24 rounded-sm bg-shop-border-subtle" />
               <div className="h-4 w-32 rounded-sm bg-shop-border-subtle" />
             </div>
-            {/* Price */}
-            <div className="h-8 w-32 rounded-sm bg-shop-surface-muted" />
+
+            {/* Price skeleton area */}
+            <div className="animate-pulse">
+              <div className="pdp-price">
+                <span className="price" style={{ fontSize: 34 }}>
+                  <div className="h-10 w-32 rounded-sm bg-shop-surface-muted" />
+                </span>
+              </div>
+              <div className="h-4.5 w-64 rounded-sm bg-shop-border-subtle" style={{ marginTop: 6 }} />
+            </div>
+
             {/* Description */}
-            <div className="space-y-2">
-              <div className="h-4 w-full rounded-sm bg-shop-border-subtle" />
-              <div className="h-4 w-5/6 rounded-sm bg-shop-border-subtle" />
-              <div className="h-4 w-2/3 rounded-sm bg-shop-border-subtle" />
+            <div className="animate-pulse space-y-2" style={{ marginTop: 18, maxWidth: 460 }}>
+              <div className="h-4.5 w-full rounded-sm bg-shop-border-subtle" />
+              <div className="h-4.5 w-5/6 rounded-sm bg-shop-border-subtle" />
+              <div className="h-4.5 w-2/3 rounded-sm bg-shop-border-subtle" />
             </div>
+
             {/* Color swatches */}
-            <div className="flex gap-3 pt-2">
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-9 w-9 rounded-full bg-shop-surface-muted"
-                />
-              ))}
+            <div className="pdp-section">
+              <div className="pdp-label">Finish</div>
+              <div className="swatches animate-pulse">
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="swatch bg-shop-surface-muted"
+                  />
+                ))}
+              </div>
             </div>
-            {/* Add to cart button */}
-            <div className="h-14 w-full rounded-shop bg-shop-surface-muted" />
+
+            {/* Storage options */}
+            <div className="pdp-section">
+              <div className="pdp-label">Storage</div>
+              <div className="animate-pulse" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <div className="chip pointer-events-none opacity-40">128GB</div>
+                <div className="chip pointer-events-none opacity-40">256GB</div>
+              </div>
+            </div>
+
+            {/* Qty + Add to bag + Fav */}
+            <div className="pdp-buy" style={{ marginTop: 30 }}>
+              <div className="qty qty-lg pointer-events-none opacity-40">
+                <button disabled>−</button>
+                <span className="mono-num">1</span>
+                <button disabled>+</button>
+              </div>
+              <button
+                className="btn btn-primary btn-lg pdp-add"
+                disabled
+              >
+                Add to bag
+              </button>
+              <button
+                className="icon-btn fav-lg"
+                disabled
+              >
+                <HeartIcon style={{ width: 20, height: 20, strokeWidth: 1.5 }} />
+              </button>
+            </div>
+
+            {/* Buy Now */}
+            <div style={{ marginTop: 12 }}>
+              <button
+                type="button"
+                className="btn btn-dark btn-lg btn-block"
+                disabled
+              >
+                Buy now
+                <ArrowRightIcon style={{ width: 16, height: 16 }} strokeWidth={2} />
+              </button>
+            </div>
+
+            {/* Perks */}
+            <div className="pdp-perks">
+              <div>
+                <TruckIcon style={{ width: 16, height: 16, strokeWidth: 1.5 }} />
+                Free 2-day shipping
+              </div>
+              <div>
+                <ArrowPathIcon style={{ width: 16, height: 16, strokeWidth: 1.5 }} />
+                30-day returns
+              </div>
+              <div>
+                <ShieldCheckIcon style={{ width: 16, height: 16, strokeWidth: 1.5 }} />
+                2-year warranty
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Tabs skeleton */}
-        <div className="pdp-tabs animate-pulse">
-          <div className="tab-row flex gap-1">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-12 w-28 rounded-sm bg-shop-border-subtle" />
-            ))}
+        <div className="pdp-tabs">
+          <div className="tab-row">
+            <button className="tab is-active" disabled>Specifications</button>
+            <button className="tab" disabled>Shipping & returns</button>
+            <button className="tab" disabled>Reviews</button>
           </div>
-          <div className="mt-6 space-y-3">
+          <div className="mt-6 animate-pulse space-y-3">
             <div className="h-4 w-full rounded-sm bg-shop-border-subtle" />
             <div className="h-4 w-5/6 rounded-sm bg-shop-border-subtle" />
             <div className="h-4 w-3/4 rounded-sm bg-shop-border-subtle" />
@@ -77,4 +160,3 @@ export default function Loading() {
     </main>
   );
 }
-
