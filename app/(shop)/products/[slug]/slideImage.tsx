@@ -2,6 +2,7 @@
 import { useState } from "react";
 import clsx from "clsx";
 import Image from "next/image";
+import { getSafeImageUrl } from "@/app/lib/utils";
 
 export default function SlideImage({
   images,
@@ -10,14 +11,25 @@ export default function SlideImage({
   images: string[];
   name: string;
 }) {
+  // Filter out invalid URLs before rendering to avoid next/image crash
+  const validImages = images.map(getSafeImageUrl).filter((u): u is string => !!u);
+  const displayImages = validImages.length > 0 ? validImages : [];
   const [currentIndex, setCurrentIndex] = useState(0);
-  const thumbs = images.slice(0, 3);
+  const thumbs = displayImages.slice(0, 3);
+
+  if (displayImages.length === 0) {
+    return (
+      <div>
+        <div className="pdp-stage" style={{ background: "var(--surface-muted)" }} />
+      </div>
+    );
+  }
 
   return (
     <div>
       <div className="pdp-stage">
         <Image
-          src={images[currentIndex]}
+          src={displayImages[currentIndex]}
           alt={name}
           fill
           className="object-contain p-8 md:p-12"
@@ -27,7 +39,7 @@ export default function SlideImage({
           style={{ position: "absolute", inset: 0 }}
         />
       </div>
-      {images.length > 1 && (
+      {displayImages.length > 1 && (
         <div className="pdp-thumbs">
           {thumbs.map((image, index) => (
             <button

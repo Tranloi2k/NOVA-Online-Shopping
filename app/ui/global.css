@@ -759,3 +759,19 @@ html.reveal-ready .reveal:not(.in) { opacity: 0; transform: translateY(22px); }
   .addr-grid { grid-template-columns: 1fr; }
   .wish-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
 }
+
+/* Custom Confirm Modal Animations */
+@keyframes fadeInBackdrop {
+  from { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+}
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-confirm-backdrop {
+  animation: fadeInBackdrop 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-confirm-modal {
+  animation: modalScaleIn 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

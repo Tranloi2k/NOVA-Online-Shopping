@@ -17,6 +17,7 @@ import { CART_UPDATED_EVENT, syncCartBadge } from "@/app/lib/cart-events";
 import { getCart } from "@/app/lib/services/cart";
 import { getUser } from "@/app/lib/services/user";
 import ShopLogo from "@/app/ui/shop/logo";
+import { ConfirmModal } from "@/app/ui/shop/confirm-modal";
 import {
   categoryNavHref,
   isCategoryActive,
@@ -66,6 +67,8 @@ export default function ShopNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userInfo, setUserInfo] = useState<ApiUserInfo | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -139,11 +142,15 @@ export default function ShopNavbar() {
   }, [userInfo, session?.user]);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
       await signOut({ callbackUrl: "/login" });
+      setShowConfirmModal(false);
       setShowUserMenu(false);
     } catch (error) {
       console.error("Logout error:", error);
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -254,7 +261,7 @@ export default function ShopNavbar() {
                       My orders
                     </Link>
                     <button
-                      onClick={handleLogout}
+                      onClick={() => setShowConfirmModal(true)}
                       className="w-full px-4 py-2 text-left text-sm text-shop-error transition-colors hover:bg-red-50"
                     >
                       Sign out
@@ -305,6 +312,16 @@ export default function ShopNavbar() {
           </nav>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleLogout}
+        title="Sign out"
+        message="Are you sure you want to sign out of your account?"
+        confirmText="Sign out"
+        isLoading={isLoggingOut}
+      />
     </header>
   );
 }

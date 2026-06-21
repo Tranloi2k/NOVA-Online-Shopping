@@ -18,6 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
+import { getSafeImageUrl } from "@/app/lib/utils";
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("en-US", {
@@ -171,13 +172,17 @@ export default function CartView({
                 href={productHref(item)}
                 className="relative h-24 w-24 shrink-0 overflow-hidden rounded-shop bg-shop-surface-muted sm:h-28 sm:w-28"
               >
-                <Image
-                  src={item.product.image}
-                  alt={item.product.name}
-                  fill
-                  className="object-cover"
-                  sizes="112px"
-                />
+                {getSafeImageUrl(item.product.image) ? (
+                  <Image
+                    src={getSafeImageUrl(item.product.image)!}
+                    alt={item.product.name}
+                    fill
+                    className="object-cover"
+                    sizes="112px"
+                  />
+                ) : (
+                  <div style={{ width: "100%", height: "100%", background: "var(--surface-muted)" }} />
+                )}
               </Link>
 
               <div className="flex min-w-0 flex-1 flex-col">

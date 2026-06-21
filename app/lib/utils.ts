@@ -1,5 +1,19 @@
 import { Revenue } from './definitions';
 
+/**
+ * Returns the URL if it looks like a valid absolute or root-relative URL,
+ * otherwise returns undefined. Prevents next/image from crashing on
+ * invalid values like "-", "", or null that some API products may have.
+ */
+export function getSafeImageUrl(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+    return url;
+  }
+  return undefined;
+}
+
+
 export function isNextNavigationError(error: unknown): boolean {
   if (typeof error !== 'object' || error === null) return false;
   const digest = (error as { digest?: string }).digest;

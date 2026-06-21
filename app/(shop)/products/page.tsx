@@ -8,8 +8,10 @@ import { getProducts } from "@/app/lib/services/products";
 import { buildPageMetadata } from "@/app/lib/seo";
 import { productListJsonLd } from "@/app/lib/seo-structured-data";
 import JsonLd from "@/app/ui/seo/json-ld";
+import { ProductGridSkeleton } from "@/app/ui/shop/skeletons";
 import Link from "next/link";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -86,6 +88,16 @@ export default async function ProductsPage(props: {
     { authenticated },
   );
 
+  // Redirect to page 1 if the requested page is out of bounds
+  if (result.products.length === 0 && filters.page > 1) {
+    const params = new URLSearchParams();
+    if (filters.category) params.set("category", filters.category);
+    if (filters.query) params.set("q", filters.query);
+    if (filters.sort && filters.sort !== "popular") params.set("sort", filters.sort);
+    const qs = params.toString();
+    redirect(qs ? `/products?${qs}` : "/products");
+  }
+
   return (
     <main>
       {result.products.length > 0 ? (
@@ -119,10 +131,12 @@ export default async function ProductsPage(props: {
           <Search />
         </Suspense>
 
-        <ListProductsComponent
-          products={result.products}
-          viewMode={filters.view}
-        />
+        <Suspense fallback={<ProductGridSkeleton count={8} />}>
+          <ListProductsComponent
+            products={result.products}
+            viewMode={filters.view}
+          />
+        </Suspense>
 
         <Suspense fallback={null}>
           <ProductPagination

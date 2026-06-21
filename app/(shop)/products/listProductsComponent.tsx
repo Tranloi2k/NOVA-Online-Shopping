@@ -6,31 +6,38 @@ import { productPath } from "@/app/lib/product-path";
 import { formatMoney } from "@/app/ui/nova/nova-utils";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { Stars } from "@/app/ui/nova/nova-stars";
+import { getSafeImageUrl } from "@/app/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+
 
 function ProductCard({ p, index }: { p: ProductListItem; index: number }) {
   const rating = p.rate ?? p.rating ?? 0;
   const originalPrice = p.discount
     ? Math.round(p.price / (1 - p.discount / 100))
     : undefined;
+  const imgSrc = getSafeImageUrl(p.image);
 
   return (
     <article className="card prod-card reveal">
       <Link href={productPath(p)} style={{ display: "block", position: "relative" }}>
         <div className="tile" style={{ aspectRatio: "4 / 3" }}>
           <div style={{ width: "64%", display: "grid", placeItems: "center" }}>
-            <Image
-              src={p.image}
-              alt={p.name}
-              width={260}
-              height={260}
-              priority={index === 0}
-              fetchPriority={index === 0 ? "high" : undefined}
-              className="object-contain"
-              style={{ width: "100%", height: "auto", transition: "transform .5s" }}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
+            {imgSrc ? (
+              <Image
+                src={imgSrc}
+                alt={p.name}
+                width={260}
+                height={260}
+                priority={index === 0}
+                fetchPriority={index === 0 ? "high" : undefined}
+                className="object-contain"
+                style={{ width: "100%", height: "auto", transition: "transform .5s" }}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+            ) : (
+              <div style={{ width: "100%", aspectRatio: "1", background: "var(--surface-muted)" }} />
+            )}
           </div>
         </div>
         <div className="prod-badges">
@@ -98,6 +105,7 @@ export default function ListProductsComponent({
           const originalPrice = p.discount
             ? Math.round(p.price / (1 - p.discount / 100))
             : undefined;
+          const listImgSrc = getSafeImageUrl(p.image);
           return (
             <article
               key={p.id}
@@ -109,16 +117,20 @@ export default function ListProductsComponent({
                 style={{ flex: "none", width: 160, position: "relative" }}
               >
                 <div className="tile" style={{ height: "100%", minHeight: 140 }}>
-                  <Image
-                    src={p.image}
-                    alt={p.name}
-                    width={160}
-                    height={140}
-                    priority={index === 0}
-                    fetchPriority={index === 0 ? "high" : undefined}
-                    className="object-contain p-4"
-                    sizes="160px"
-                  />
+                  {listImgSrc ? (
+                    <Image
+                      src={listImgSrc}
+                      alt={p.name}
+                      width={160}
+                      height={140}
+                      priority={index === 0}
+                      fetchPriority={index === 0 ? "high" : undefined}
+                      className="object-contain p-4"
+                      sizes="160px"
+                    />
+                  ) : (
+                    <div style={{ width: "100%", height: "100%", background: "var(--surface-muted)" }} />
+                  )}
                 </div>
               </Link>
               <div style={{ flex: 1, padding: "22px 22px 22px 0", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
