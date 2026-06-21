@@ -1,7 +1,7 @@
 "use server";
 import { authFetch } from "@/app/lib/api-client";
 import { CACHE_TAGS } from "@/app/lib/cache-tags";
-import { cookies } from "next/headers";
+import { resolveUserId } from "@/app/lib/auth-tokens";
 
 export const getUser = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
@@ -10,8 +10,7 @@ export const getUser = async () => {
   }
 
   try {
-    const cookieStore = await cookies();
-    const id = cookieStore.get("user_id")?.value;
+    const id = await resolveUserId();
     if (!id) {
       return null;
     }
@@ -46,7 +45,12 @@ export const updateUser = async (
   }
 
   try {
-    const response = await authFetch(`${apiUrl}/user/${id}`, {
+    const resolvedId = await resolveUserId();
+    if (!resolvedId) {
+      return { error: "Unauthorized" };
+    }
+
+    const response = await authFetch(`${apiUrl}/user/${resolvedId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -79,8 +83,7 @@ export const getUserOrders = async () => {
   }
 
   try {
-    const cookieStore = await cookies();
-    const id = cookieStore.get("user_id")?.value;
+    const id = await resolveUserId();
     if (!id) {
       return [];
     }
@@ -121,7 +124,12 @@ export const confirmOrder = async (
   }
 
   try {
-    const response = await authFetch(`${apiUrl}/user/${userId}/orders`, {
+    const resolvedId = await resolveUserId();
+    if (!resolvedId) {
+      return { error: "Unauthorized" };
+    }
+
+    const response = await authFetch(`${apiUrl}/user/${resolvedId}/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

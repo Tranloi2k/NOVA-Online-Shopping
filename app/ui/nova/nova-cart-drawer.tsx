@@ -8,11 +8,52 @@ import { formatMoney } from "@/app/ui/nova/nova-utils";
 import { useCartDrawer } from "@/app/ui/nova/cart-drawer-context";
 import { getCartSummary } from "@/app/lib/services/cart";
 import type { CartItem, CartSummary } from "@/app/lib/definitions";
+import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 
 export function NovaCartDrawer() {
   const { isOpen, close } = useCartDrawer();
   const [summary, setSummary] = useState<CartSummary | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { requireAuth } = useRequireAuth();
+
+  const handleCheckout = async () => {
+    if (items.length === 0) return;
+    if (!requireAuth()) return;
+
+    setIsCheckingOut(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/checkout/cart", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.status === 401) {
+        setIsCheckingOut(false);
+        requireAuth();
+        return;
+      }
+
+      const data = (await response.json()) as { url?: string; error?: string };
+
+      if (!response.ok || !data.url) {
+        throw new Error(data.error ?? "Checkout failed");
+      }
+
+      close();
+      window.location.href = data.url;
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not start checkout. Please try again.",
+      );
+      setIsCheckingOut(false);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -142,14 +183,37 @@ export function NovaCartDrawer() {
               >
                 Shipping &amp; taxes calculated at checkout.
               </p>
-              <Link
-                href="/checkout"
-                onClick={close}
+              {error && (
+                <p className="error-text" style={{ color: "var(--sale)", fontSize: 13, marginTop: 8, marginBottom: 8, textAlign: "center" }}>
+                  {error}
+                </p>
+              )}
+              <button
+                disabled={isCheckingOut}
+                onClick={handleCheckout}
                 className="btn btn-primary btn-block btn-lg"
-                style={{ display: "flex", justifyContent: "center" }}
+                style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
               >
-                Checkout
-              </Link>
+                {isCheckingOut ? (
+                  <>
+                    <span
+                      style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        border: "2px solid rgba(255,255,255,.3)",
+                        borderTopColor: "#fff",
+                        animation: "spin 0.7s linear infinite",
+                        marginRight: 8,
+                        display: "inline-block"
+                      }}
+                    />
+                    Processing…
+                  </>
+                ) : (
+                  "Checkout"
+                )}
+              </button>
               <Link
                 href="/cart"
                 onClick={close}

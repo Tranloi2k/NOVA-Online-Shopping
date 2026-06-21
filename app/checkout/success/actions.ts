@@ -2,15 +2,14 @@
 
 import { retrieveCheckoutSession } from "@/app/lib/checkout-sessions";
 import { confirmOrder } from "@/app/lib/services/user";
-import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
 import { revalidateAfterCartChange } from "@/app/lib/revalidate-shop";
+import { resolveUserId } from "@/app/lib/auth-tokens";
 
 export async function confirmCheckoutOrderAction(sessionId: string) {
   try {
     const session = await retrieveCheckoutSession(sessionId);
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_id")?.value;
+    const userId = await resolveUserId();
 
     if (!userId) {
       return { success: false, error: "Not logged in" };

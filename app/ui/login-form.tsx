@@ -7,9 +7,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
 import { ShopButton } from "@/app/ui/shop/button";
-import { useActionState, useRef } from "react";
-import { authenticate } from "@/app/lib/actions";
+import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { useRef, useState } from "react";
 import GoogleLoginButton from "@/app/ui/google-login-button";
 
 const DEMO_EMAIL = "demo@nova.com";
@@ -18,10 +18,10 @@ const DEMO_PASSWORD = "demo123";
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/products";
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined,
-  );
+  
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -30,9 +30,37 @@ export default function LoginForm() {
     if (passwordRef.current) passwordRef.current.value = DEMO_PASSWORD;
   }
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsPending(true);
+    setErrorMessage(null);
+
+    const email = emailRef.current?.value || "";
+    const password = passwordRef.current?.value || "";
+
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setErrorMessage("Invalid credentials.");
+        setIsPending(false);
+      } else {
+        window.location.href = callbackUrl;
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setErrorMessage("Something went wrong.");
+      setIsPending(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <form action={formAction} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="shop-card p-6 !pb-2 md:p-8">
           <div className="space-y-4">
             <div>

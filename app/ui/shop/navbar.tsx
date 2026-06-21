@@ -56,7 +56,7 @@ export default function ShopNavbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category") || "";
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const cartItemsCount = useSyncExternalStore(
     subscribeCartCount,
     getCartCountSnapshot,
@@ -77,18 +77,23 @@ export default function ShopNavbar() {
     let cancelled = false;
 
     const fetchData = async () => {
-      try {
-        const [cartResponse, userResponse] = await Promise.all([
-          getCart(),
-          getUser(),
-        ]);
-        if (cancelled) return;
-        setUserInfo(userResponse);
-        syncCartBadge(cartResponse?.quantity ?? 0);
-      } catch {
-        if (!cancelled) {
-          syncCartBadge(0);
+      if (status === "authenticated") {
+        try {
+          const [cartResponse, userResponse] = await Promise.all([
+            getCart(),
+            getUser(),
+          ]);
+          if (cancelled) return;
+          setUserInfo(userResponse);
+          syncCartBadge(cartResponse?.quantity ?? 0);
+        } catch {
+          if (!cancelled) {
+            syncCartBadge(0);
+          }
         }
+      } else if (status === "unauthenticated") {
+        setUserInfo(null);
+        syncCartBadge(0);
       }
     };
 
@@ -96,7 +101,7 @@ export default function ShopNavbar() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [status]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

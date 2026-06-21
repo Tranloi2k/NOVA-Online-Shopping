@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCheckoutAuth } from "@/app/lib/checkout-auth";
 import { createProductCheckoutSession } from "@/app/lib/checkout-sessions";
+import { getProductById } from "@/app/lib/services/products";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,23 +13,40 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { productId, productName, price, quantity, customerEmail } =
+    const { productId, quantity, customerEmail } =
       await request.json();
 
     // Validate required fields
-    if (!productId || !productName || !price || !quantity) {
+    if (!productId || !quantity) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Create product object
+    // Fetch product details from DB/API to prevent price tampering
+    let dbProduct;
+    try {
+      dbProduct = await getProductById(String(productId));
+    } catch {
+      return NextResponse.json(
+        { error: `Product with ID ${productId} not found` },
+        { status: 404 }
+      );
+    }
+
+    // Apply discount to the product price if applicable
+    const productPrice = Number(dbProduct.price);
+    const productDiscount = Number(dbProduct.discount || 0);
+    const finalPrice = productPrice - (productPrice * productDiscount) / 100;
+
+    // Create product object with server-verified details
     const product = {
-      id: productId,
-      name: productName,
-      price: parseFloat(price),
-      description: `Purchase of ${productName}`,
+      id: String(dbProduct.id),
+      name: dbProduct.name,
+      price: finalPrice,
+      description: `Purchase of ${dbProduct.name}`,
+      image: dbProduct.image,
     };
 
     const stripeSession = await createProductCheckoutSession(
