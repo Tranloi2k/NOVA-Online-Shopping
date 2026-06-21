@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 export async function POST() {
   const checkoutAuth = await getCheckoutAuth();
-  if (!checkoutAuth.authorized) {
+  if (!checkoutAuth.authorized || !checkoutAuth.userId) {
     return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   }
 
@@ -34,6 +34,9 @@ export async function POST() {
     const stripeSession = await createCartCheckoutSession(
       products,
       checkoutAuth.customerEmail,
+      {
+        user_id: checkoutAuth.userId,
+      },
     );
 
     if (!stripeSession.url) {

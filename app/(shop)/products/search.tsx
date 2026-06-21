@@ -4,7 +4,7 @@ import { Icon } from "@/app/ui/nova/nova-icons";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-export default function Search() {
+export default function Search({ disabled = false }: { disabled?: boolean }) {
   const searchParams = useSearchParams();
   const { replace } = useRouter();
   const pathname = usePathname();
@@ -24,7 +24,10 @@ export default function Search() {
   }
 
   return (
-    <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+    <div
+      style={{ display: "flex", gap: 10, marginBottom: 8 }}
+      className={disabled ? "pointer-events-none opacity-60" : ""}
+    >
       <div style={{ position: "relative", flex: 1 }}>
         <span
           style={{
@@ -46,11 +49,17 @@ export default function Search() {
           placeholder="Search products…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && search()}
+          onKeyDown={(e) => e.key === "Enter" && !disabled && search()}
+          disabled={disabled}
           aria-label="Search products"
         />
       </div>
-      <button type="button" className="btn btn-ghost" onClick={search}>
+      <button
+        type="button"
+        className="btn btn-ghost"
+        onClick={search}
+        disabled={disabled}
+      >
         Search
       </button>
     </div>

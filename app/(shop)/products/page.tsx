@@ -67,14 +67,49 @@ export async function generateMetadata(props: {
   });
 }
 
-export default async function ProductsPage(props: {
-  searchParams?: Promise<Record<string, string | undefined>>;
+function ProductsPageSkeleton({
+  pageTitle,
+  filters,
+}: {
+  pageTitle: string;
+  filters: ReturnType<typeof parseProductFilters>;
 }) {
-  const rawParams = (await props.searchParams) ?? {};
-  const filters = parseProductFilters(rawParams);
-  const pageTitle = getPageTitle(filters.category, filters.query);
-  const authenticated = await getCatalogAuthenticated();
+  return (
+    <>
+      {/* Hero */}
+      <div className="shop-hero">
+        <div className="wrap">
+          <nav className="crumbs">
+            <Link href="/">Home</Link>
+            <span>/</span>
+            <span>{pageTitle}</span>
+          </nav>
+          <h1 style={{ fontSize: "clamp(32px,4.4vw,54px)", marginTop: 10 }}>
+            {pageTitle}
+          </h1>
+          <div className="mt-3 h-4 w-64 animate-pulse rounded-sm bg-shop-border-subtle" />
+        </div>
+      </div>
 
+      {/* Body */}
+      <div className="wrap shop-body">
+        <ProductToolbar disabled />
+        <Search disabled key={filters.query || ""} />
+        <ProductGridSkeleton count={8} />
+      </div>
+    </>
+  );
+}
+
+async function ProductsPageContent({
+  filters,
+  authenticated,
+  pageTitle,
+}: {
+  filters: ReturnType<typeof parseProductFilters>;
+  authenticated: boolean;
+  pageTitle: string;
+}) {
   const result = await getProducts(
     {
       query: filters.query,
@@ -99,7 +134,7 @@ export default async function ProductsPage(props: {
   }
 
   return (
-    <main>
+    <>
       {result.products.length > 0 ? (
         <JsonLd data={productListJsonLd(result.products)} />
       ) : null}
@@ -123,28 +158,40 @@ export default async function ProductsPage(props: {
 
       {/* Body */}
       <div className="wrap shop-body">
-        <Suspense fallback={null}>
-          <ProductToolbar />
-        </Suspense>
+        <ProductToolbar />
+        <Search key={filters.query || ""} />
 
-        <Suspense fallback={null}>
-          <Search />
-        </Suspense>
+        <ListProductsComponent
+          products={result.products}
+          viewMode={filters.view}
+        />
 
-        <Suspense fallback={<ProductGridSkeleton count={8} />}>
-          <ListProductsComponent
-            products={result.products}
-            viewMode={filters.view}
-          />
-        </Suspense>
-
-        <Suspense fallback={null}>
-          <ProductPagination
-            currentPage={result.page}
-            totalPages={result.totalPages}
-          />
-        </Suspense>
+        <ProductPagination
+          currentPage={result.page}
+          totalPages={result.totalPages}
+        />
       </div>
+    </>
+  );
+}
+
+export default async function ProductsPage(props: {
+  searchParams?: Promise<Record<string, string | undefined>>;
+}) {
+  const rawParams = (await props.searchParams) ?? {};
+  const filters = parseProductFilters(rawParams);
+  const pageTitle = getPageTitle(filters.category, filters.query);
+  const authenticated = await getCatalogAuthenticated();
+
+  return (
+    <main>
+      <Suspense fallback={<ProductsPageSkeleton pageTitle={pageTitle} filters={filters} />}>
+        <ProductsPageContent
+          filters={filters}
+          authenticated={authenticated}
+          pageTitle={pageTitle}
+        />
+      </Suspense>
     </main>
   );
 }

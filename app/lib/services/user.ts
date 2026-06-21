@@ -36,7 +36,6 @@ export const getUser = async () => {
 };
 
 export const updateUser = async (
-  id: string | number,
   data: { username?: string; email?: string; password?: string },
 ) => {
   const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
@@ -109,7 +108,6 @@ export const getUserOrders = async () => {
 };
 
 export const confirmOrder = async (
-  userId: string | number,
   sessionData: {
     stripeSessionId: string;
     total: number;

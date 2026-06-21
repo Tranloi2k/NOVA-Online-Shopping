@@ -59,7 +59,7 @@ export default function ProfileForm({ initialUser }: ProfileFormProps) {
     setLoading(true);
 
     try {
-      const res = await updateUser(initialUser.id, payload);
+      const res = await updateUser(payload);
 
       if (res && res.error) {
         setError(res.error);
