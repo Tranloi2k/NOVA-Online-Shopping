@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Icon } from "@/app/ui/nova/nova-icons";
@@ -43,6 +44,7 @@ export default function NovaHeader() {
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     const f = () => setScrolled(window.scrollY > 8);
@@ -90,27 +92,28 @@ export default function NovaHeader() {
     <header className={`site-head${scrolled ? " scrolled" : ""}`}>
       <div className="wrap head-inner">
         <Link className="logo-btn" href="/" aria-label="NOVA home">
-          <img
-            src="/nova-logo.png"
-            alt="NOVA"
-            className="logo-img"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-              const next = e.currentTarget.nextElementSibling as HTMLElement | null;
-              if (next) next.style.display = "block";
-            }}
-          />
-          <span
-            style={{
-              display: "none",
-              fontFamily: "var(--font-display)",
-              fontWeight: 700,
-              fontSize: 20,
-              letterSpacing: "-0.03em",
-            }}
-          >
-            NOVA
-          </span>
+          {!logoError ? (
+            <Image
+              src="/nova-logo.png"
+              alt="NOVA"
+              width={88}
+              height={22}
+              priority
+              className="logo-img"
+              onError={() => setLogoError(true)}
+            />
+          ) : (
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 700,
+                fontSize: 20,
+                letterSpacing: "-0.03em",
+              }}
+            >
+              NOVA
+            </span>
+          )}
         </Link>
 
         <nav className="head-nav">
