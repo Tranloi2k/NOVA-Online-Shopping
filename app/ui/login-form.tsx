@@ -79,6 +79,7 @@ export default function LoginForm() {
                   name="email"
                   placeholder="you@example.com"
                   required
+                  disabled={isPending}
                 />
                 <AtSymbolIcon
                   className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-shop-muted"
@@ -103,6 +104,7 @@ export default function LoginForm() {
                   placeholder="Enter password"
                   required
                   minLength={6}
+                  disabled={isPending}
                 />
                 <KeyIcon
                   className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-shop-muted"
@@ -119,10 +121,19 @@ export default function LoginForm() {
             variant="primary"
             size="lg"
             className="mt-6 w-full"
-            aria-disabled={isPending}
+            disabled={isPending}
           >
-            Sign in
-            <ArrowRightIcon className="h-4 w-4" />
+            {isPending ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Signing in...
+              </>
+            ) : (
+              <>
+                Sign in
+                <ArrowRightIcon className="h-4 w-4" />
+              </>
+            )}
           </ShopButton>
 
           <div
@@ -167,6 +178,7 @@ export default function LoginForm() {
             size="sm"
             className="mt-3 w-full"
             onClick={fillDemoCredentials}
+            disabled={isPending}
           >
             Use demo account
           </ShopButton>
@@ -185,7 +197,7 @@ export default function LoginForm() {
       </div>
 
       <div className="shop-card p-4">
-        <GoogleLoginButton />
+        <GoogleLoginButton disabled={isPending} />
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { Stars } from "@/app/ui/nova/nova-stars";
 import { formatMoney } from "@/app/ui/nova/nova-utils";
+import { getSafeImageUrl } from "@/app/lib/utils";
 
 export type NovaProduct = {
   id: number;
@@ -34,6 +35,7 @@ export function NovaProductCard({
   const originalPrice = p.discount
     ? Math.round(p.price / (1 - p.discount / 100))
     : undefined;
+  const imgSrc = getSafeImageUrl(p.image);
 
   return (
     <article className="card prod-card">
@@ -42,14 +44,18 @@ export function NovaProductCard({
           className="tile"
           style={{ aspectRatio: "4 / 3", position: "relative", overflow: "hidden" }}
         >
-          <Image
-            src={p.image}
-            alt={p.name}
-            fill
-            className="object-contain p-6"
-            style={{ transition: "transform .5s" }}
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-          />
+          {imgSrc ? (
+            <Image
+              src={imgSrc}
+              alt={p.name}
+              fill
+              className="object-contain p-6"
+              style={{ transition: "transform .5s" }}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+            />
+          ) : (
+            <div style={{ width: "100%", height: "100%", background: "var(--surface-muted)" }} />
+          )}
         </div>
         <div className="prod-badges">
           {p.isNew && <span className="tag dark">New</span>}

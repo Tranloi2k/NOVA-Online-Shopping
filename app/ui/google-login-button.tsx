@@ -4,7 +4,11 @@ import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-export default function GoogleLoginButton() {
+interface GoogleLoginButtonProps {
+  disabled?: boolean;
+}
+
+export default function GoogleLoginButton({ disabled }: GoogleLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/products";
@@ -26,7 +30,7 @@ export default function GoogleLoginButton() {
       aria-label="Continue with Google"
       role="button"
       onClick={handleGoogleLogin}
-      disabled={isLoading}
+      disabled={isLoading || disabled}
       className="flex w-full items-center justify-center gap-3 rounded-shop border border-shop-border bg-shop-surface px-6 py-3 text-sm font-medium text-shop-text transition-all duration-shop ease-shop hover:border-shop-text hover:bg-shop-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shop-text focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {isLoading ? (
