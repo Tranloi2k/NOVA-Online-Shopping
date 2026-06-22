@@ -5,6 +5,7 @@ import {
   revalidateAfterCartChange,
   revalidateProductsCatalog,
 } from "@/app/lib/revalidate-shop";
+import { devLog } from "@/app/lib/dev-logger";
 
 const CURRENCY = "usd";
 
@@ -220,29 +221,29 @@ export async function handleStripeWebhook(
     switch (event.type) {
       case "checkout.session.completed":
         const session = event.data.object as Stripe.Checkout.Session;
-        console.log("✅ Checkout session completed:", session.id);
+        devLog("Checkout session completed:", session.id);
         await handleSuccessfulPayment(session);
         break;
 
       case "checkout.session.async_payment_succeeded":
         const asyncSession = event.data.object as Stripe.Checkout.Session;
-        console.log("✅ Async payment succeeded:", asyncSession.id);
+        devLog("Async payment succeeded:", asyncSession.id);
         await handleSuccessfulPayment(asyncSession);
         break;
 
       case "checkout.session.async_payment_failed":
         const failedSession = event.data.object as Stripe.Checkout.Session;
-        console.log("❌ Async payment failed:", failedSession.id);
+        devLog("Async payment failed:", failedSession.id);
         await handleFailedPayment(failedSession);
         break;
 
       case "payment_intent.succeeded":
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log("💳 Payment intent succeeded:", paymentIntent.id);
+        devLog("Payment intent succeeded:", paymentIntent.id);
         break;
 
       default:
-        console.log(`🔔 Unhandled event type: ${event.type}`);
+        devLog(`Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
@@ -259,7 +260,7 @@ export async function handleStripeWebhook(
 async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
   try {
     if (session.payment_status !== "paid") {
-      console.log(
+      devLog(
         "Skipping order confirmation — payment not completed:",
         session.id,
         session.payment_status,
@@ -305,7 +306,7 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
       return;
     }
 
-    console.log("Order confirmed via webhook for session:", session.id);
+    devLog("Order confirmed via webhook for session:", session.id);
 
     if (orderType === "cart") {
       revalidateAfterCartChange({ userId: user_id, refreshRoute: false, source: "handler" });
@@ -327,15 +328,15 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
 // Handle failed payment
 async function handleFailedPayment(session: Stripe.Checkout.Session) {
   try {
-    console.log("💔 Processing failed payment for session:", session.id);
+    devLog("Processing failed payment for session:", session.id);
 
     // Update order status in database
     // await updateOrderStatus(session.metadata?.order_id, 'failed');
 
     // Send failure notification
     if (session.customer_email) {
-      console.log(
-        `📧 Sending failure notification to: ${session.customer_email}`
+      devLog(
+        `Sending failure notification to: ${session.customer_email}`,
       );
       // await sendPaymentFailureEmail(session.customer_email, session);
     }
