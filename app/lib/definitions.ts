@@ -87,6 +87,20 @@ export type InvoiceForm = {
   status: 'pending' | 'paid';
 };
 
+export type StorefrontPoster = {
+  id: number;
+  imageUrl: string;
+  altText: string | null;
+  sortOrder: number;
+  product: {
+    id: number;
+    name: string;
+    description?: string | null;
+    price?: number;
+    discount?: number;
+  };
+};
+
 export type ProductListItem = {
   id: number;
   name: string;

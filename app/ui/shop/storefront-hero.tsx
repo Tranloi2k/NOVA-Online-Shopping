@@ -183,10 +183,7 @@ export function StorefrontCta() {
       </section>
 
       {/* Value row */}
-      <section
-        className="section"
-        style={{ paddingBlock: "clamp(48px,6vw,84px)" }}
-      >
+      <section className="section">
         <div className="wrap value-row">
           {(
             [

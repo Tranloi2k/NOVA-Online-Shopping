@@ -15,11 +15,11 @@ function HeaderFallback() {
 export default function ShopShell({ children }: { children: React.ReactNode }) {
   return (
     <CartDrawerProvider>
-      <div style={{ display: "flex", minHeight: "100vh", flexDirection: "column", background: "var(--bg)" }}>
+      <div className="shop-shell">
         <Suspense fallback={<HeaderFallback />}>
           <NovaHeader />
         </Suspense>
-        <main style={{ flex: 1 }}>{children}</main>
+        <main className="shop-main">{children}</main>
         <NovaFooter />
         <NovaCartDrawer />
       </div>
