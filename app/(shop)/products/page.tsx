@@ -26,6 +26,12 @@ function getPageTitle(category?: string, query?: string) {
       return "Tablets";
     case "wearables":
       return "Wearables";
+    case "audio":
+      return "Audio";
+    case "laptops":
+      return "Laptops";
+    case "accessories":
+      return "Accessories";
     default:
       return "All products";
   }
@@ -42,8 +48,14 @@ function getCatalogDescription(category?: string, query?: string) {
       return "Shop tablets for work and creativity with vivid displays.";
     case "wearables":
       return "Discover smartwatches and wearables that keep you connected.";
+    case "audio":
+      return "Shop headphones, earbuds, and speakers with premium sound.";
+    case "laptops":
+      return "Browse powerful laptops for work, creativity, and everyday use.";
+    case "accessories":
+      return "Find keyboards, chargers, hubs, and essentials for your setup.";
     default:
-      return "Browse our full catalog of premium smartphones, tablets, and wearables.";
+      return "Browse our full catalog of premium tech — phones, laptops, audio, and more.";
   }
 }
 

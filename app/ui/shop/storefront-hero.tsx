@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { categoryNavHref } from "@/app/lib/product-filters";
+import { categoryNavHref, productsHref } from "@/app/lib/product-filters";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { NovaGlyph } from "@/app/ui/nova/nova-glyphs";
 import { Stars } from "@/app/ui/nova/nova-stars";
@@ -73,9 +73,9 @@ const cats = [
   { id: "smartphones", label: "Phones", glyph: "phone" as const },
   { id: "tablets", label: "Tablets", glyph: "tablet" as const },
   { id: "wearables", label: "Wearables", glyph: "watch" as const },
-  { id: "all", label: "Audio", glyph: "headphones" as const },
-  { id: "all", label: "Laptops", glyph: "laptop" as const },
-  { id: "all", label: "Accessories", glyph: "keyboard" as const },
+  { id: "audio", label: "Audio", glyph: "headphones" as const },
+  { id: "laptops", label: "Laptops", glyph: "laptop" as const },
+  { id: "accessories", label: "Accessories", glyph: "keyboard" as const },
 ];
 
 export function CategoryTiles() {
@@ -89,7 +89,7 @@ export function CategoryTiles() {
         <div className="cat-grid">
           {cats.map((c, i) => (
             <Link
-              key={i}
+              key={c.id}
               href={categoryNavHref(c.id)}
               className="cat-tile reveal"
             >
@@ -170,7 +170,7 @@ export function StorefrontCta() {
                 audio lineup.
               </p>
               <Link
-                href="/products"
+                href={productsHref({ category: "audio" })}
                 className="btn btn-primary btn-lg"
                 style={{ marginTop: 28, display: "inline-flex" }}
               >

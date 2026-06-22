@@ -2,9 +2,10 @@
 
 import {
   PRODUCT_CATEGORIES,
-  SORT_OPTIONS,
   buildProductsSearchParams,
+  type ProductSort,
 } from "@/app/lib/product-filters";
+import ProductSortDropdown from "@/app/ui/products/product-sort-dropdown";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function ProductToolbar({ disabled = false }: { disabled?: boolean }) {
@@ -13,7 +14,7 @@ export default function ProductToolbar({ disabled = false }: { disabled?: boolea
   const searchParams = useSearchParams();
 
   const activeCategory = searchParams.get("category") || "all";
-  const activeSort = searchParams.get("sort") || "popular";
+  const activeSort = (searchParams.get("sort") || "popular") as ProductSort;
 
   const pushParams = (
     updates: Record<string, string | number | boolean | null | undefined>,
@@ -44,21 +45,11 @@ export default function ProductToolbar({ disabled = false }: { disabled?: boolea
       </div>
 
       <div className="sort-wrap">
-        <label className="sort-field">
-          <span className="muted">Sort</span>
-          <select
-            value={activeSort}
-            onChange={(e) => !disabled && pushParams({ sort: e.target.value })}
-            disabled={disabled}
-            aria-label="Sort products"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <ProductSortDropdown
+          value={activeSort}
+          onChange={(sort) => pushParams({ sort })}
+          disabled={disabled}
+        />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { isOutOfStock } from "@/app/lib/product-stock";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -13,17 +14,21 @@ interface BuyNowButtonProps {
     price: number;
   };
   quantity?: number;
+  stock?: number;
 }
 
 export default function BuyNowButton({
   product,
   quantity = 1,
+  stock,
 }: BuyNowButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { requireAuth, isAuthLoading } = useRequireAuth();
   const { data: session } = useSession();
+  const outOfStock = isOutOfStock(stock);
 
   const handleBuyNow = async () => {
+    if (outOfStock) return;
     if (!requireAuth()) {
       return;
     }
@@ -76,13 +81,15 @@ export default function BuyNowButton({
     <button
       type="button"
       onClick={handleBuyNow}
-      disabled={isLoading || isAuthLoading}
+      disabled={outOfStock || isLoading || isAuthLoading}
       className={clsx(
         "btn btn-dark btn-lg btn-block",
-        (isLoading || isAuthLoading) && "opacity-60 cursor-not-allowed",
+        (outOfStock || isLoading || isAuthLoading) && "opacity-60 cursor-not-allowed",
       )}
     >
-      {isLoading ? (
+      {outOfStock ? (
+        "Out of stock"
+      ) : isLoading ? (
         <>
           <div
             style={{

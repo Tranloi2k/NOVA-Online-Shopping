@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/app/ui/shared/safe-image";
 import { getSafeImageUrl } from "@/app/lib/utils";
 
 export type OrderStatus = "processing" | "shipped" | "delivered" | "cancelled";
@@ -200,7 +200,7 @@ function OrderCard({ order }: { order: Order }) {
                 }}
               >
                 {imgSrc ? (
-                  <Image
+                  <SafeImage
                     src={imgSrc}
                     alt={item.name}
                     fill

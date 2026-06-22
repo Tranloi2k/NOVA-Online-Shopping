@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/app/ui/shared/safe-image";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { formatMoney } from "@/app/ui/nova/nova-utils";
 import { useCartDrawer } from "@/app/ui/nova/cart-drawer-context";
@@ -10,6 +10,7 @@ import { getCartSummary } from "@/app/lib/services/cart";
 import type { CartItem, CartSummary } from "@/app/lib/definitions";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 import { getSafeImageUrl } from "@/app/lib/utils";
+import { getCartStockIssue, getProductStock } from "@/app/lib/product-stock";
 
 export function NovaCartDrawer() {
   const { isOpen, close } = useCartDrawer();
@@ -20,7 +21,7 @@ export function NovaCartDrawer() {
   const { requireAuth } = useRequireAuth();
 
   const handleCheckout = async () => {
-    if (items.length === 0) return;
+    if (items.length === 0 || stockIssue) return;
     if (!requireAuth()) return;
 
     setIsCheckingOut(true);
@@ -68,6 +69,7 @@ export function NovaCartDrawer() {
 
   const items: CartItem[] = summary?.cart?.items ?? [];
   const subtotal = summary?.finalPrice ?? 0;
+  const stockIssue = getCartStockIssue(items);
 
   return (
     <div className={`drawer-scrim${isOpen ? " open" : ""}`} onClick={close}>
@@ -114,6 +116,7 @@ export function NovaCartDrawer() {
             <div className="drawer-list">
               {items.map((it) => {
                 const imgSrc = getSafeImageUrl(it.product.image);
+                const itemOutOfStock = getProductStock(it.product.stock) < 1;
                 return (
                 <div className="drawer-item" key={it.id}>
                   <div className="drawer-thumb">
@@ -122,7 +125,7 @@ export function NovaCartDrawer() {
                       style={{ aspectRatio: "1 / 1", position: "relative" }}
                     >
                       {imgSrc ? (
-                        <Image
+                        <SafeImage
                           src={imgSrc}
                           alt={it.product.name}
                           fill
@@ -152,6 +155,18 @@ export function NovaCartDrawer() {
                         {it.product.name}
                       </span>
                     </div>
+                    {(it.storage || it.color) && (
+                      <p className="muted" style={{ fontSize: 12, marginTop: 4 }}>
+                        {[it.storage, it.color ? "Custom finish" : ""]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    )}
+                    {itemOutOfStock && (
+                      <p style={{ fontSize: 12, marginTop: 4, color: "var(--sale)", fontWeight: 700 }}>
+                        Out of stock
+                      </p>
+                    )}
                     <div
                       style={{
                         display: "flex",
@@ -191,13 +206,13 @@ export function NovaCartDrawer() {
               >
                 Shipping &amp; taxes calculated at checkout.
               </p>
-              {error && (
+              {error || stockIssue ? (
                 <p className="error-text" style={{ color: "var(--sale)", fontSize: 13, marginTop: 8, marginBottom: 8, textAlign: "center" }}>
-                  {error}
+                  {error ?? stockIssue}
                 </p>
-              )}
+              ) : null}
               <button
-                disabled={isCheckingOut}
+                disabled={isCheckingOut || Boolean(stockIssue)}
                 onClick={handleCheckout}
                 className="btn btn-primary btn-block btn-lg"
                 style={{ display: "flex", justifyContent: "center", alignItems: "center" }}

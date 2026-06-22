@@ -2,6 +2,7 @@
 import { syncCartBadge } from "@/app/lib/cart-events";
 import { addToCart } from "@/app/lib/services/cart";
 import type { ProductFormProduct } from "@/app/lib/definitions";
+import { getProductStock, isOutOfStock } from "@/app/lib/product-stock";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
 import {
   TruckIcon,
@@ -28,15 +29,22 @@ export default function ProductForm({
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const { requireAuth, isAuthLoading } = useRequireAuth();
+
+  const stock = getProductStock(product.stock);
+  const outOfStock = isOutOfStock(stock);
+  const maxQuantity = stock;
 
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
   const handleAddToCart = async () => {
+    if (outOfStock) return;
     if (!requireAuth()) return;
     setIsAdding(true);
+    setError(null);
     try {
       const summary = await addToCart(product.id, quantity, {
         color: selectedColor,
@@ -45,8 +53,10 @@ export default function ProductForm({
       syncCartBadge(summary.cart?.quantity ?? 0);
       setAdded(true);
       setTimeout(() => setAdded(false), 1800);
-    } catch {
-      // no-op
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not add to bag. Please try again.",
+      );
     } finally {
       setIsAdding(false);
     }
@@ -67,6 +77,16 @@ export default function ProductForm({
         or {fmt(Math.round(product.price / 12))}/mo with NovaPay · 0% APR
       </div>
 
+      {outOfStock ? (
+        <p className="pdp-stock pdp-stock--oos" role="status">
+          Out of stock — unavailable to order right now.
+        </p>
+      ) : stock <= 5 ? (
+        <p className="pdp-stock pdp-stock--low" role="status">
+          Only {stock} left in stock
+        </p>
+      ) : null}
+
       {/* Color swatches */}
       {product.colors.length > 0 && (
         <div className="pdp-section">
@@ -82,6 +102,7 @@ export default function ProductForm({
                 style={{ background: color }}
                 onClick={() => setSelectedColor(color)}
                 aria-label={COLOR_NAMES[i] || color}
+                disabled={outOfStock}
               >
                 {selectedColor === color && <span className="swatch-ring" />}
               </button>
@@ -100,6 +121,7 @@ export default function ProductForm({
                 key={storage}
                 onClick={() => setSelectedStorage(storage)}
                 className={clsx("chip", selectedStorage === storage && "is-active")}
+                disabled={outOfStock}
               >
                 {storage}
               </button>
@@ -110,17 +132,19 @@ export default function ProductForm({
 
       {/* Qty + Add to bag + Fav */}
       <div className="pdp-buy">
-        <div className="qty qty-lg">
+        <div className={clsx("qty qty-lg", outOfStock && "opacity-50")}>
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             aria-label="Decrease quantity"
+            disabled={outOfStock || quantity <= 1}
           >
             −
           </button>
           <span className="mono-num">{quantity}</span>
           <button
-            onClick={() => setQuantity(quantity + 1)}
+            onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
             aria-label="Increase quantity"
+            disabled={outOfStock || quantity >= maxQuantity}
           >
             +
           </button>
@@ -128,13 +152,15 @@ export default function ProductForm({
         <button
           className={clsx("btn btn-primary btn-lg pdp-add", added && "is-added")}
           onClick={handleAddToCart}
-          disabled={isAdding || isAuthLoading}
+          disabled={outOfStock || isAdding || isAuthLoading}
         >
-          {isAdding
-            ? "Adding…"
-            : added
-              ? "✓ Added to bag"
-              : `Add to bag · ${fmt(product.price * quantity)}`}
+          {outOfStock
+            ? "Out of stock"
+            : isAdding
+              ? "Adding…"
+              : added
+                ? "✓ Added to bag"
+                : `Add to bag · ${fmt(product.price * quantity)}`}
         </button>
         <button
           className="icon-btn fav-lg"
@@ -150,9 +176,15 @@ export default function ProductForm({
         </button>
       </div>
 
+      {error && (
+        <p className="mt-3 text-sm" style={{ color: "var(--sale)" }} role="alert">
+          {error}
+        </p>
+      )}
+
       {/* Buy Now */}
       <div style={{ marginTop: 12 }}>
-        <BuyNowButton product={product} quantity={quantity} />
+        <BuyNowButton product={product} quantity={quantity} stock={stock} />
       </div>
 
       {/* Perks */}

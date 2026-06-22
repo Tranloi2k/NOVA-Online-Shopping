@@ -14,11 +14,12 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import Image from "next/image";
+import { SafeImage } from "@/app/ui/shared/safe-image";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 import { getSafeImageUrl } from "@/app/lib/utils";
+import { getCartStockIssue, getProductStock } from "@/app/lib/product-stock";
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("en-US", {
@@ -34,6 +35,21 @@ function productHref(item: CartItem) {
 
 function lineTotal(item: CartItem) {
   return Number(item.price) * item.quantity;
+}
+
+function maxQuantityForItem(item: CartItem, allItems: CartItem[]) {
+  const siblingQuantity = allItems
+    .filter((other) => other.productId === item.productId && other.id !== item.id)
+    .reduce((sum, other) => sum + other.quantity, 0);
+
+  return Math.max(0, getProductStock(item.product.stock) - siblingQuantity);
+}
+
+function variantLabel(item: CartItem) {
+  const parts: string[] = [];
+  if (item.storage) parts.push(item.storage);
+  if (item.color) parts.push("Custom finish");
+  return parts.join(" · ");
 }
 
 export default function CartView({
@@ -53,6 +69,7 @@ export default function CartView({
 
   const items = summary.cart?.items ?? [];
   const isEmpty = items.length === 0;
+  const stockIssue = getCartStockIssue(items);
 
   const applySummary = (next: CartSummary) => {
     setSummary(next);
@@ -67,8 +84,12 @@ export default function CartView({
       try {
         const next = await updateCartItem(item.id, nextQuantity);
         applySummary(next);
-      } catch {
-        setError("Could not update quantity. Please try again.");
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not update quantity. Please try again.",
+        );
       }
     });
   };
@@ -101,7 +122,7 @@ export default function CartView({
   };
 
   const handleCheckout = async () => {
-    if (isEmpty) return;
+    if (isEmpty || stockIssue) return;
     if (!requireAuth()) return;
 
     setIsCheckingOut(true);
@@ -160,12 +181,16 @@ export default function CartView({
     <div className="lg:grid lg:grid-cols-3 lg:gap-10">
       <div className="lg:col-span-2">
         <ul className="space-y-4">
-          {items.map((item) => (
+          {items.map((item) => {
+            const itemOutOfStock = getProductStock(item.product.stock) < 1;
+            const maxQty = maxQuantityForItem(item, items);
+            return (
             <li
               key={item.id}
               className={clsx(
                 "shop-card flex gap-4 p-4 sm:gap-6 sm:p-6",
                 isPending && "pointer-events-none opacity-60",
+                itemOutOfStock && "border-shop-error/30",
               )}
             >
               <Link
@@ -173,7 +198,7 @@ export default function CartView({
                 className="relative h-24 w-24 shrink-0 overflow-hidden rounded-shop bg-shop-surface-muted sm:h-28 sm:w-28"
               >
                 {getSafeImageUrl(item.product.image) ? (
-                  <Image
+                  <SafeImage
                     src={getSafeImageUrl(item.product.image)!}
                     alt={item.product.name}
                     fill
@@ -197,6 +222,23 @@ export default function CartView({
                     <p className="mt-1 text-sm text-shop-secondary">
                       {formatPrice(Number(item.price))} each
                     </p>
+                    {(item.color || item.storage) && (
+                      <p className="mt-1 flex items-center gap-2 text-xs text-shop-muted">
+                        {item.color ? (
+                          <span
+                            className="inline-block h-3.5 w-3.5 rounded-full border border-shop-border"
+                            style={{ background: item.color }}
+                            aria-hidden
+                          />
+                        ) : null}
+                        <span>{variantLabel(item)}</span>
+                      </p>
+                    )}
+                    {itemOutOfStock && (
+                      <p className="mt-2 text-xs font-medium text-shop-error">
+                        Out of stock — remove to checkout
+                      </p>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -228,7 +270,8 @@ export default function CartView({
                       onClick={() =>
                         handleQuantityChange(item, item.quantity + 1)
                       }
-                      className="flex h-9 w-9 items-center justify-center text-shop-secondary transition-colors hover:bg-shop-surface-muted"
+                      disabled={item.quantity >= maxQty || maxQty < 1}
+                      className="flex h-9 w-9 items-center justify-center text-shop-secondary transition-colors hover:bg-shop-surface-muted disabled:opacity-40"
                     >
                       +
                     </button>
@@ -239,7 +282,8 @@ export default function CartView({
                 </div>
               </div>
             </li>
-          ))}
+          );
+          })}
         </ul>
 
         <button
@@ -275,9 +319,9 @@ export default function CartView({
             </div>
           </dl>
 
-          {error && (
+          {(error || stockIssue) && (
             <p className="mt-4 text-sm text-shop-error" role="alert">
-              {error}
+              {error ?? stockIssue}
             </p>
           )}
 
@@ -285,7 +329,7 @@ export default function CartView({
             type="button"
             size="lg"
             className="mt-6 w-full"
-            disabled={isCheckingOut || isPending}
+            disabled={isCheckingOut || isPending || Boolean(stockIssue)}
             onClick={handleCheckout}
           >
             {isCheckingOut ? (

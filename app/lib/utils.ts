@@ -18,6 +18,9 @@ export function getSafeImageUrl(url: string | null | undefined): string | undefi
     trimmed.startsWith('https://') ||
     trimmed.startsWith('/')
   ) {
+    if (trimmed.includes('/uploads/')) {
+      return undefined;
+    }
     return trimmed;
   }
 

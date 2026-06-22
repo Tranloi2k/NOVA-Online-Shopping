@@ -29,6 +29,9 @@ const navLinks = [
   { name: "Smartphones", category: "smartphones" },
   { name: "Tablets", category: "tablets" },
   { name: "Wearables", category: "wearables" },
+  { name: "Audio", category: "audio" },
+  { name: "Laptops", category: "laptops" },
+  { name: "Accessories", category: "accessories" },
 ] as const;
 
 function readStoredCartCount(): number {

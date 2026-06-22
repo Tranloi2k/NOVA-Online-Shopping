@@ -98,10 +98,10 @@ yarn install
 # NestJS Backend API
 NEXT_PUBLIC_EXTERNAL_API_URL="http://localhost:5000/api"
 
-# Stripe
+# Stripe (checkout redirects via server-generated session URL)
 STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_your_stripe_publishable_key"
 STRIPE_WEBHOOK_SECRET="whsec_your_webhook_secret"
+INTERNAL_WEBHOOK_SECRET="change_me_internal_webhook_secret"
 
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -155,8 +155,6 @@ nextjs-dashboard/
 │   │   ├── button.tsx            # Button component
 │   │   ├── search.tsx            # Search component
 │   │   └── ...                   # Other UI components
-│   ├── utils/                    # Utility functions
-│   │   └── get-stripejs.ts       # Stripe.js configuration
 │   ├── login/                    # Authentication pages
 │   ├── checkout/                 # Checkout success/cancel pages
 │   ├── layout.tsx                # Root layout
