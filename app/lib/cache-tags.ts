@@ -6,6 +6,8 @@ export const CACHE_TAGS = {
   /** Product list / catalog (home featured, /products) */
   products: "products",
   catalog: "catalog",
+  /** Home page promo poster ticker */
+  posters: "posters",
   product: (id: string | number) => `product-${id}`,
   /** Cart summary (all users — use with user-specific tag when possible) */
   cart: "cart",

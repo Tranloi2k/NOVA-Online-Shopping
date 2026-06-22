@@ -1,6 +1,6 @@
-# 🚀 NextJS E-Commerce Dashboard
+# 🛍️ NovaShop — Online Shopping (Next.js)
 
-A modern, full-stack e-commerce dashboard built with Next.js 15 frontend and NestJS backend, featuring product management, user authentication, and integrated Stripe payments.
+The customer-facing storefront for **NovaShop**, built with Next.js 15. Browse products, manage your cart, authenticate securely, and checkout with Stripe — powered by the [NovaShop NestJS API](https://github.com/Tranloi2k/nestjs-app).
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.0-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)
@@ -79,8 +79,8 @@ Stripe account
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/tranloi2k/nextjs-dashboard.git
-cd nextjs-dashboard
+git clone https://github.com/Tranloi2k/nextjs-dashboard.git nova-online-shopping-nextjs
+cd nova-online-shopping-nextjs
 ```
 
 2. **Install dependencies**
@@ -135,7 +135,7 @@ yarn dev
 ## 📁 Project Structure
 
 ```
-nextjs-dashboard/
+nova-online-shopping-nextjs/
 ├── app/                          # Next.js App Router
 │   ├── api/                      # API Routes & Proxy
 │   │   ├── [...path]/            # API proxy to NestJS
@@ -259,10 +259,11 @@ Declined: 4000 0000 0000 0002
 
 ## 👨‍💻 Author
 
-**Your Name**
+**Tran Loi**
 
-- GitHub: [@tranloi2k](https://github.com/tranloi2k)
-- Email: tranloi162710@gmail.com
+- GitHub: [@Tranloi2k](https://github.com/Tranloi2k)
+- Email: tranloi20001007@gmail.com
+- Live demo: [nova-online-shopping.vercel.app](https://nova-online-shopping.vercel.app/)
 
 ## 🙏 Acknowledgments
 

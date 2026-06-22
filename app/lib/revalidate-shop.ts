@@ -74,6 +74,7 @@ export function revalidateAfterCartChange(
   invalidateDataCacheTag(CACHE_TAGS.cart, source);
   invalidateDataCacheTag(CACHE_TAGS.products, source);
   invalidateDataCacheTag(CACHE_TAGS.catalog, source);
+  invalidateDataCacheTag(CACHE_TAGS.posters, source);
 
   if (userId) {
     invalidateDataCacheTag(CACHE_TAGS.cartUser(userId), source);
@@ -102,6 +103,7 @@ export function revalidateProductsCatalog(options?: {
 
   invalidateDataCacheTag(CACHE_TAGS.products, source);
   invalidateDataCacheTag(CACHE_TAGS.catalog, source);
+  invalidateDataCacheTag(CACHE_TAGS.posters, source);
 
   revalidatePath("/products", "layout");
   revalidatePath("/", "layout");

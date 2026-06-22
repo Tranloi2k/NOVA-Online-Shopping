@@ -10,6 +10,7 @@ import {
   REFRESH_TOKEN_COOKIE,
   setAuthCookies,
 } from "@/app/lib/auth-tokens";
+import { devLog } from "@/app/lib/dev-logger";
 
 async function login(params: { email: string; password: string }) {
   const { email, password } = params;
@@ -22,7 +23,6 @@ async function login(params: { email: string; password: string }) {
     `${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/login`,
     options,
   ).then((res) => {
-    console.log(res);
     if (!res.ok) {
       throw new Error("Login failed");
     }
@@ -88,7 +88,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             console.error("Login failed:", error);
           }
         }
-        console.log("Invalid credentials");
+        devLog("Invalid credentials");
         return null;
       },
     }),
@@ -114,7 +114,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             userId: response.userId,
           });
 
-          console.log("✅ Google login successful:");
+          devLog("Google login successful");
           return true;
         } catch (error) {
           console.error("❌ Google login failed:", error);
@@ -125,58 +125,17 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       // For credentials provider, authorize already handled the logic
       return true;
     },
-    async session({ session, token }) {
-      if (token) {
-        session.accessToken =
-          typeof token.accessToken === "string" ? token.accessToken : undefined;
-        session.expiresAt =
-          typeof token.expiresAt === "number" ? token.expiresAt : undefined;
-
-        if (typeof token.expiresAt === "number") {
-          const timeLeft = token.expiresAt - Math.floor(Date.now() / 1000);
-          if (timeLeft < 24 * 60 * 60) {
-            session.nearExpiry = true;
-          }
-        }
-
-        if (token.sub) {
-          session.user.id = token.sub;
-        }
-      }
-
-      return session;
-    },
-    async jwt({ token, user, account }) {
-      if (account && user) {
-        return {
-          ...token,
-          accessToken: account.access_token,
-          expiresAt: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
-          provider: account.provider,
-        };
-      }
-
-      if (
-        typeof token.expiresAt === "number" &&
-        Date.now() / 1000 > token.expiresAt
-      ) {
-        return null;
-      }
-
-      return token;
-    },
   },
   events: {
     async signOut() {
-      console.log("🔒 Signing out user...");
+      devLog("Signing out user");
 
       try {
-        // ✅ Call backend logout
         await logout();
 
         await clearAuthCookies();
 
-        console.log("✅ Cookies cleared successfully");
+        devLog("Cookies cleared successfully");
       } catch (error) {
         console.error("❌ Sign out error:", error);
       }

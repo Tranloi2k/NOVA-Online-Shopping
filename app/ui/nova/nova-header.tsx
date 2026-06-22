@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -25,6 +26,18 @@ function subscribeCartCount(onStoreChange: () => void) {
   return () => window.removeEventListener(CART_UPDATED_EVENT, onUpdate);
 }
 
+function subscribeNoop() {
+  return () => {};
+}
+
+function getClientSnapshot() {
+  return true;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
 export default function NovaHeader() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
@@ -36,9 +49,24 @@ export default function NovaHeader() {
     () => 0,
   );
 
+  const isClient = useSyncExternalStore(
+    subscribeNoop,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     const f = () => setScrolled(window.scrollY > 8);
@@ -169,7 +197,7 @@ export default function NovaHeader() {
           </button>
 
           <button
-            className="icon-btn hide-md"
+            className="icon-btn hide-md head-menu-btn"
             aria-label="Menu"
             onClick={() => setMenuOpen(true)}
           >
@@ -178,72 +206,76 @@ export default function NovaHeader() {
         </div>
       </div>
 
-      {menuOpen && (
-        <div className="mobile-menu" onClick={() => setMenuOpen(false)}>
-          <div
-            className="mobile-menu-panel"
-            onClick={(e) => e.stopPropagation()}
-          >
+      {isClient &&
+        menuOpen &&
+        createPortal(
+          <div className="mobile-menu" onClick={() => setMenuOpen(false)}>
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 24,
-              }}
+              className="mobile-menu-panel"
+              onClick={(e) => e.stopPropagation()}
             >
-              <span
+              <div
                 style={{
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 700,
-                  fontSize: 20,
-                  letterSpacing: "-0.03em",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 24,
                 }}
               >
-                NOVA
-              </span>
-              <button
-                className="icon-btn"
+                <span
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontWeight: 700,
+                    fontSize: 20,
+                    letterSpacing: "-0.03em",
+                  }}
+                >
+                  NOVA
+                </span>
+                <button
+                  className="icon-btn"
+                  onClick={() => setMenuOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <Icon name="close" size={22} />
+                </button>
+              </div>
+              {(
+                [
+                  ["/", "Home"],
+                  ["/products", "Shop"],
+                ] as const
+              ).map(([href, label]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="m-link"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {label}
+                </Link>
+              ))}
+              {CATEGORY_NAV_ITEMS.map((c) => (
+                <Link
+                  key={c.id}
+                  href={categoryNavHref(c.id)}
+                  className="m-link"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {c.label}
+                </Link>
+              ))}
+              <Link
+                href={user ? "/account" : "/login"}
+                className="m-link"
                 onClick={() => setMenuOpen(false)}
               >
-                <Icon name="close" size={22} />
-              </button>
+                {user ? "My account" : "Sign in"}
+              </Link>
             </div>
-            {(
-              [
-                ["/", "Home"],
-                ["/products", "Shop"],
-              ] as const
-            ).map(([href, label]) => (
-              <Link
-                key={href}
-                href={href}
-                className="m-link"
-                onClick={() => setMenuOpen(false)}
-              >
-                {label}
-              </Link>
-            ))}
-            {CATEGORY_NAV_ITEMS.map((c) => (
-              <Link
-                key={c.id}
-                href={categoryNavHref(c.id)}
-                className="m-link"
-                onClick={() => setMenuOpen(false)}
-              >
-                {c.label}
-              </Link>
-            ))}
-            <Link
-              href={user ? "/account" : "/login"}
-              className="m-link"
-              onClick={() => setMenuOpen(false)}
-            >
-              {user ? "My account" : "Sign in"}
-            </Link>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </header>
   );
 }

@@ -5,6 +5,7 @@ import {
   FeaturedProducts,
 } from "@/app/ui/shop/storefront-hero";
 import ShopShell from "@/app/ui/shop/shop-shell";
+import { PosterTicker } from "@/app/ui/shop/poster-ticker";
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/app/lib/seo";
 import { websiteJsonLd } from "@/app/lib/seo-structured-data";
@@ -24,6 +25,7 @@ export default function HomePage() {
   return (
     <ShopShell>
       <JsonLd data={websiteJsonLd()} />
+      <PosterTicker />
       <StorefrontHero />
       <CategoryTiles />
       <FeaturedProducts />

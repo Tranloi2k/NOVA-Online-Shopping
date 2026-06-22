@@ -87,7 +87,7 @@ export function CategoryTiles() {
       <div className="wrap">
         <SectionHead eyebrow="Browse" title="Shop by category" />
         <div className="cat-grid">
-          {cats.map((c, i) => (
+          {cats.map((c) => (
             <Link
               key={c.id}
               href={categoryNavHref(c.id)}
@@ -183,10 +183,7 @@ export function StorefrontCta() {
       </section>
 
       {/* Value row */}
-      <section
-        className="section"
-        style={{ paddingBlock: "clamp(48px,6vw,84px)" }}
-      >
+      <section className="section">
         <div className="wrap value-row">
           {(
             [

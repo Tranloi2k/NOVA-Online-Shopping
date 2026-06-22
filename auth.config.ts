@@ -14,19 +14,19 @@ declare module "next-auth" {
   }
 }
 
+export const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
+
 export const authConfig = {
   pages: {
     signIn: "/login",
   },
   session: {
-    // ✅ Cấu hình session expiry
-    strategy: "jwt", // Sử dụng JWT thay vì database sessions
-    maxAge: 24 * 60 * 60, // 30 days (in seconds)
-    updateAge: 12 * 60 * 60, // 24 hours - update session mỗi 24h
+    strategy: "jwt",
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    updateAge: 12 * 60 * 60, // 12 hours
   },
   jwt: {
-    // ✅ JWT token expiry
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: SESSION_MAX_AGE_SECONDS,
   },
   callbacks: {
     authorized({ auth, request: { nextUrl, cookies } }) {
@@ -64,7 +64,7 @@ export const authConfig = {
           ...token,
           accessToken: account.access_token,
           // ✅ Set custom expiry time
-          expiresAt: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days from now
+          expiresAt: Math.floor(Date.now() / 1000) + SESSION_MAX_AGE_SECONDS,
         };
       }
 
@@ -73,8 +73,7 @@ export const authConfig = {
         typeof token.expiresAt === "number" &&
         Date.now() / 1000 > token.expiresAt
       ) {
-        console.log("🔒 Token expired, forcing logout");
-        return null; // This will force logout
+        return null;
       }
 
       return token;
@@ -93,9 +92,12 @@ export const authConfig = {
         if (typeof token.expiresAt === "number") {
           timeLeft = token.expiresAt - Math.floor(Date.now() / 1000);
           if (timeLeft < 24 * 60 * 60) {
-            // Less than 24 hours left
             session.nearExpiry = true;
           }
+        }
+
+        if (token.sub) {
+          session.user.id = token.sub;
         }
       }
       return session;
