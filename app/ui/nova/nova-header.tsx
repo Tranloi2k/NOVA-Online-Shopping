@@ -26,6 +26,18 @@ function subscribeCartCount(onStoreChange: () => void) {
   return () => window.removeEventListener(CART_UPDATED_EVENT, onUpdate);
 }
 
+function subscribeNoop() {
+  return () => {};
+}
+
+function getClientSnapshot() {
+  return true;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
 export default function NovaHeader() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
@@ -37,14 +49,15 @@ export default function NovaHeader() {
     () => 0,
   );
 
+  const isClient = useSyncExternalStore(
+    subscribeNoop,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [menuMounted, setMenuMounted] = useState(false);
   const [logoError, setLogoError] = useState(false);
-
-  useEffect(() => {
-    setMenuMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -193,7 +206,7 @@ export default function NovaHeader() {
         </div>
       </div>
 
-      {menuMounted &&
+      {isClient &&
         menuOpen &&
         createPortal(
           <div className="mobile-menu" onClick={() => setMenuOpen(false)}>

@@ -87,7 +87,7 @@ export function CategoryTiles() {
       <div className="wrap">
         <SectionHead eyebrow="Browse" title="Shop by category" />
         <div className="cat-grid">
-          {cats.map((c, i) => (
+          {cats.map((c) => (
             <Link
               key={c.id}
               href={categoryNavHref(c.id)}
