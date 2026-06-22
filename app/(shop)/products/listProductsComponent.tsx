@@ -7,24 +7,28 @@ import { formatMoney } from "@/app/ui/nova/nova-utils";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { Stars } from "@/app/ui/nova/nova-stars";
 import { getSafeImageUrl } from "@/app/lib/utils";
+import { isOutOfStock } from "@/app/lib/product-stock";
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/app/ui/shared/safe-image";
+import clsx from "clsx";
 
 
 function ProductCard({ p, index }: { p: ProductListItem; index: number }) {
   const rating = p.rate ?? p.rating ?? 0;
-  const originalPrice = p.discount
-    ? Math.round(p.price / (1 - p.discount / 100))
+  const outOfStock = isOutOfStock(p.stock);
+  const hasDiscount = (p.discount ?? 0) > 0;
+  const originalPrice = hasDiscount
+    ? Math.round(p.price / (1 - (p.discount ?? 0) / 100))
     : undefined;
   const imgSrc = getSafeImageUrl(p.image);
 
   return (
-    <article className="card prod-card reveal">
+    <article className={clsx("card prod-card reveal", outOfStock && "is-out-of-stock")}>
       <Link href={productPath(p)} style={{ display: "block", position: "relative" }}>
         <div className="tile" style={{ aspectRatio: "4 / 3" }}>
           <div style={{ width: "64%", display: "grid", placeItems: "center" }}>
             {imgSrc ? (
-              <Image
+              <SafeImage
                 src={imgSrc}
                 alt={p.name}
                 width={260}
@@ -41,8 +45,9 @@ function ProductCard({ p, index }: { p: ProductListItem; index: number }) {
           </div>
         </div>
         <div className="prod-badges">
-          {p.isNew && <span className="tag dark">New</span>}
-          {p.discount && <span className="tag sale">Save {p.discount}%</span>}
+          {outOfStock && <span className="tag oos">Out of stock</span>}
+          {!outOfStock && p.isNew && <span className="tag dark">New</span>}
+          {!outOfStock && hasDiscount && <span className="tag sale">Save {p.discount}%</span>}
         </div>
       </Link>
 
@@ -66,13 +71,19 @@ function ProductCard({ p, index }: { p: ProductListItem; index: number }) {
               </span>
             )}
           </div>
-          <Link
-            href={productPath(p)}
-            className="add-mini"
-            aria-label="View product"
-          >
-            <Icon name="plus" size={18} sw={2.2} />
-          </Link>
+          {outOfStock ? (
+            <span className="add-mini is-disabled" aria-label="Out of stock">
+              <Icon name="plus" size={18} sw={2.2} />
+            </span>
+          ) : (
+            <Link
+              href={productPath(p)}
+              className="add-mini"
+              aria-label="View product"
+            >
+              <Icon name="plus" size={18} sw={2.2} />
+            </Link>
+          )}
         </div>
       </div>
     </article>
@@ -102,14 +113,16 @@ export default function ListProductsComponent({
       <div style={{ display: "flex", flexDirection: "column", gap: 1, marginTop: 28 }}>
         {products.map((p, index) => {
           const rating = p.rate ?? p.rating ?? 0;
-          const originalPrice = p.discount
-            ? Math.round(p.price / (1 - p.discount / 100))
+          const outOfStock = isOutOfStock(p.stock);
+          const hasDiscount = (p.discount ?? 0) > 0;
+          const originalPrice = hasDiscount
+            ? Math.round(p.price / (1 - (p.discount ?? 0) / 100))
             : undefined;
           const listImgSrc = getSafeImageUrl(p.image);
           return (
             <article
               key={p.id}
-              className="card reveal"
+              className={clsx("card reveal", outOfStock && "is-out-of-stock")}
               style={{ display: "flex", gap: 20, marginBottom: 4, padding: 0, overflow: "hidden" }}
             >
               <Link
@@ -118,7 +131,7 @@ export default function ListProductsComponent({
               >
                 <div className="tile" style={{ height: "100%", minHeight: 140 }}>
                   {listImgSrc ? (
-                    <Image
+                    <SafeImage
                       src={listImgSrc}
                       alt={p.name}
                       width={160}
@@ -136,8 +149,9 @@ export default function ListProductsComponent({
               <div style={{ flex: 1, padding: "22px 22px 22px 0", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <div>
                   <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
-                    {p.isNew && <span className="tag dark">New</span>}
-                    {p.discount && <span className="tag sale">Save {p.discount}%</span>}
+                    {outOfStock && <span className="tag oos">Out of stock</span>}
+                    {!outOfStock && p.isNew && <span className="tag dark">New</span>}
+                    {!outOfStock && hasDiscount && <span className="tag sale">Save {p.discount}%</span>}
                   </div>
                   <h3 style={{ fontSize: 17 }}>
                     <Link href={productPath(p)}>{p.name}</Link>
@@ -159,9 +173,15 @@ export default function ListProductsComponent({
                       </span>
                     )}
                   </div>
-                  <Link href={productPath(p)} className="btn btn-dark btn-sm">
-                    View product
-                  </Link>
+                  {outOfStock ? (
+                    <span className="btn btn-dark btn-sm opacity-50 cursor-not-allowed">
+                      Out of stock
+                    </span>
+                  ) : (
+                    <Link href={productPath(p)} className="btn btn-dark btn-sm">
+                      View product
+                    </Link>
+                  )}
                 </div>
               </div>
             </article>

@@ -1,17 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import clsx from "clsx";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { Stars } from "@/app/ui/nova/nova-stars";
 import { formatMoney } from "@/app/ui/nova/nova-utils";
 import { getSafeImageUrl } from "@/app/lib/utils";
+import { SafeImage } from "@/app/ui/shared/safe-image";
+import { isOutOfStock } from "@/app/lib/product-stock";
 
 export type NovaProduct = {
   id: number;
   name: string;
   image: string;
   price: number;
+  stock?: number;
   rating?: number;
   reviewCount?: number;
   isNew?: boolean;
@@ -32,20 +35,22 @@ export function NovaProductCard({
   onFav?: (id: number) => void;
 }) {
   const rating = p.rating ?? 0;
-  const originalPrice = p.discount
-    ? Math.round(p.price / (1 - p.discount / 100))
+  const outOfStock = isOutOfStock(p.stock);
+  const hasDiscount = (p.discount ?? 0) > 0;
+  const originalPrice = hasDiscount
+    ? Math.round(p.price / (1 - (p.discount ?? 0) / 100))
     : undefined;
   const imgSrc = getSafeImageUrl(p.image);
 
   return (
-    <article className="card prod-card">
+    <article className={clsx("card prod-card", outOfStock && "is-out-of-stock")}>
       <Link href={productHref(p)} style={{ display: "block", position: "relative" }}>
         <div
           className="tile"
           style={{ aspectRatio: "4 / 3", position: "relative", overflow: "hidden" }}
         >
           {imgSrc ? (
-            <Image
+            <SafeImage
               src={imgSrc}
               alt={p.name}
               fill
@@ -58,8 +63,9 @@ export function NovaProductCard({
           )}
         </div>
         <div className="prod-badges">
-          {p.isNew && <span className="tag dark">New</span>}
-          {p.discount && (
+          {outOfStock && <span className="tag oos">Out of stock</span>}
+          {!outOfStock && p.isNew && <span className="tag dark">New</span>}
+          {!outOfStock && hasDiscount && (
             <span className="tag sale">Save {p.discount}%</span>
           )}
         </div>
@@ -96,14 +102,20 @@ export function NovaProductCard({
               </span>
             )}
           </div>
-          <Link
-            href={productHref(p)}
-            className="add-mini"
-            aria-label="View product"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Icon name="plus" size={18} sw={2.2} />
-          </Link>
+          {outOfStock ? (
+            <span className="add-mini is-disabled" aria-label="Out of stock">
+              <Icon name="plus" size={18} sw={2.2} />
+            </span>
+          ) : (
+            <Link
+              href={productHref(p)}
+              className="add-mini"
+              aria-label="View product"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Icon name="plus" size={18} sw={2.2} />
+            </Link>
+          )}
         </div>
       </div>
     </article>

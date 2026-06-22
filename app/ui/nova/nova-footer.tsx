@@ -1,12 +1,5 @@
 import Link from "next/link";
-import { categoryNavHref } from "@/app/lib/product-filters";
-
-const cats = [
-  { id: "smartphones", label: "Phones" },
-  { id: "tablets", label: "Tablets" },
-  { id: "wearables", label: "Wearables" },
-  { id: "all", label: "All products" },
-];
+import { categoryNavHref, CATEGORY_NAV_ITEMS } from "@/app/lib/product-filters";
 
 export default function NovaFooter() {
   return (
@@ -47,11 +40,12 @@ export default function NovaFooter() {
 
           <div className="foot-col">
             <h4>Shop</h4>
-            {cats.map((c) => (
+            {CATEGORY_NAV_ITEMS.map((c) => (
               <Link key={c.id} href={categoryNavHref(c.id)}>
                 {c.label}
               </Link>
             ))}
+            <Link href={categoryNavHref("all")}>All products</Link>
           </div>
 
           <div className="foot-col">

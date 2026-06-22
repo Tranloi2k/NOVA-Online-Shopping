@@ -2,6 +2,7 @@
 import { syncCartBadge } from "@/app/lib/cart-events";
 import { addToCart } from "@/app/lib/services/cart";
 import type { ProductFormProduct } from "@/app/lib/definitions";
+import { getProductStock, isOutOfStock } from "@/app/lib/product-stock";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
 import {
   TruckIcon,
@@ -32,12 +33,15 @@ export default function ProductForm({
   const [isFavorite, setIsFavorite] = useState(false);
   const { requireAuth, isAuthLoading } = useRequireAuth();
 
-  const maxQuantity = Math.max(1, Number(product.stock) || 0);
+  const stock = getProductStock(product.stock);
+  const outOfStock = isOutOfStock(stock);
+  const maxQuantity = stock;
 
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
   const handleAddToCart = async () => {
+    if (outOfStock) return;
     if (!requireAuth()) return;
     setIsAdding(true);
     setError(null);
@@ -73,6 +77,16 @@ export default function ProductForm({
         or {fmt(Math.round(product.price / 12))}/mo with NovaPay · 0% APR
       </div>
 
+      {outOfStock ? (
+        <p className="pdp-stock pdp-stock--oos" role="status">
+          Out of stock — unavailable to order right now.
+        </p>
+      ) : stock <= 5 ? (
+        <p className="pdp-stock pdp-stock--low" role="status">
+          Only {stock} left in stock
+        </p>
+      ) : null}
+
       {/* Color swatches */}
       {product.colors.length > 0 && (
         <div className="pdp-section">
@@ -88,6 +102,7 @@ export default function ProductForm({
                 style={{ background: color }}
                 onClick={() => setSelectedColor(color)}
                 aria-label={COLOR_NAMES[i] || color}
+                disabled={outOfStock}
               >
                 {selectedColor === color && <span className="swatch-ring" />}
               </button>
@@ -106,6 +121,7 @@ export default function ProductForm({
                 key={storage}
                 onClick={() => setSelectedStorage(storage)}
                 className={clsx("chip", selectedStorage === storage && "is-active")}
+                disabled={outOfStock}
               >
                 {storage}
               </button>
@@ -116,11 +132,11 @@ export default function ProductForm({
 
       {/* Qty + Add to bag + Fav */}
       <div className="pdp-buy">
-        <div className="qty qty-lg">
+        <div className={clsx("qty qty-lg", outOfStock && "opacity-50")}>
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             aria-label="Decrease quantity"
-            disabled={quantity <= 1}
+            disabled={outOfStock || quantity <= 1}
           >
             −
           </button>
@@ -128,7 +144,7 @@ export default function ProductForm({
           <button
             onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
             aria-label="Increase quantity"
-            disabled={quantity >= maxQuantity}
+            disabled={outOfStock || quantity >= maxQuantity}
           >
             +
           </button>
@@ -136,9 +152,9 @@ export default function ProductForm({
         <button
           className={clsx("btn btn-primary btn-lg pdp-add", added && "is-added")}
           onClick={handleAddToCart}
-          disabled={isAdding || isAuthLoading || maxQuantity < 1}
+          disabled={outOfStock || isAdding || isAuthLoading}
         >
-          {maxQuantity < 1
+          {outOfStock
             ? "Out of stock"
             : isAdding
               ? "Adding…"
@@ -165,15 +181,10 @@ export default function ProductForm({
           {error}
         </p>
       )}
-      {maxQuantity > 0 && maxQuantity <= 5 && (
-        <p className="muted" style={{ fontSize: 13, marginTop: 8 }}>
-          Only {maxQuantity} left in stock
-        </p>
-      )}
 
       {/* Buy Now */}
       <div style={{ marginTop: 12 }}>
-        <BuyNowButton product={product} quantity={quantity} />
+        <BuyNowButton product={product} quantity={quantity} stock={stock} />
       </div>
 
       {/* Perks */}

@@ -3,7 +3,12 @@ export const PRODUCT_CATEGORIES = [
   { id: "smartphones", label: "Smartphones" },
   { id: "tablets", label: "Tablets" },
   { id: "wearables", label: "Wearables" },
+  { id: "audio", label: "Audio" },
+  { id: "laptops", label: "Laptops" },
+  { id: "accessories", label: "Accessories" },
 ] as const;
+
+export const CATEGORY_NAV_ITEMS = PRODUCT_CATEGORIES.filter((c) => c.id !== "all");
 
 export const SORT_OPTIONS = [
   { value: "popular", label: "Popular" },

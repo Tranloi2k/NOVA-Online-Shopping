@@ -8,14 +8,8 @@ import { useSession } from "next-auth/react";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { useCartDrawer } from "@/app/ui/nova/cart-drawer-context";
 import { CART_UPDATED_EVENT, syncCartBadge } from "@/app/lib/cart-events";
-import { categoryNavHref } from "@/app/lib/product-filters";
+import { categoryNavHref, CATEGORY_NAV_ITEMS } from "@/app/lib/product-filters";
 import { getCartSummary } from "@/app/lib/services/cart";
-
-const cats = [
-  { id: "smartphones", label: "Phones" },
-  { id: "tablets", label: "Tablets" },
-  { id: "wearables", label: "Wearables" },
-];
 
 function readStoredCartCount(): number {
   if (typeof window === "undefined") return 0;
@@ -129,7 +123,7 @@ export default function NovaHeader() {
           >
             Shop
           </Link>
-          {cats.map((c) => (
+          {CATEGORY_NAV_ITEMS.map((c) => (
             <Link
               key={c.id}
               href={categoryNavHref(c.id)}
@@ -230,7 +224,7 @@ export default function NovaHeader() {
                 {label}
               </Link>
             ))}
-            {cats.map((c) => (
+            {CATEGORY_NAV_ITEMS.map((c) => (
               <Link
                 key={c.id}
                 href={categoryNavHref(c.id)}

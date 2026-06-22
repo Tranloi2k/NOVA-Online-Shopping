@@ -92,6 +92,7 @@ export type ProductListItem = {
   name: string;
   image: string;
   price: number;
+  stock?: number;
   rate?: number;
   rating?: number;
   reviewCount: number;

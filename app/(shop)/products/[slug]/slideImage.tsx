@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import clsx from "clsx";
-import Image from "next/image";
 import { getSafeImageUrl } from "@/app/lib/utils";
+import { SafeImage } from "@/app/ui/shared/safe-image";
 
 export default function SlideImage({
   images,
@@ -11,7 +11,7 @@ export default function SlideImage({
   images: string[];
   name: string;
 }) {
-  // Filter out invalid URLs before rendering to avoid next/image crash
+  // Filter invalid URLs; external vendor hosts render via <img> (see SafeImage).
   const validImages = images.map(getSafeImageUrl).filter((u): u is string => !!u);
   const displayImages = validImages.length > 0 ? validImages : [];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -28,7 +28,7 @@ export default function SlideImage({
   return (
     <div>
       <div className="pdp-stage">
-        <Image
+        <SafeImage
           src={displayImages[currentIndex]}
           alt={name}
           fill
@@ -56,7 +56,7 @@ export default function SlideImage({
               }}
             >
               <div style={{ position: "relative", width: "60%", height: "60%" }}>
-                <Image
+                <SafeImage
                   src={image}
                   alt={`${name} ${index + 1}`}
                   fill
