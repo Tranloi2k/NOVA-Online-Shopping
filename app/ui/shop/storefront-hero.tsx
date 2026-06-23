@@ -6,6 +6,7 @@ import { NovaGlyph } from "@/app/ui/nova/nova-glyphs";
 import { Stars } from "@/app/ui/nova/nova-stars";
 import { SectionHead } from "@/app/ui/nova/nova-section-head";
 import { NovaProductCard } from "@/app/ui/nova/nova-product-card";
+import { Reveal } from "@/app/ui/nova/reveal";
 import { NovaNewsletter } from "@/app/ui/nova/nova-newsletter";
 import { getProducts } from "@/app/lib/services/products";
 import type { ProductListItem } from "@/app/lib/definitions";
@@ -15,7 +16,7 @@ export function StorefrontHero() {
   return (
     <section className="heroA">
       <div className="wrap">
-        <div className="heroA-top reveal">
+        <Reveal className="heroA-top">
           <span className="tag dark">
             <Icon name="bolt" size={13} /> New · Nova Season
           </span>
@@ -36,9 +37,9 @@ export function StorefrontHero() {
               Sign in
             </Link>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="heroA-stage reveal">
+        <Reveal className="heroA-stage" index={1}>
           <Image
             src="/hero_iphone_17_pro.jpg"
             alt="iPhone 17 Pro"
@@ -62,7 +63,7 @@ export function StorefrontHero() {
               3,210 reviews
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -87,18 +88,20 @@ export function CategoryTiles() {
       <div className="wrap">
         <SectionHead eyebrow="Browse" title="Shop by category" />
         <div className="cat-grid">
-          {cats.map((c) => (
-            <Link
+          {cats.map((c, index) => (
+            <Reveal
+              as={Link}
               key={c.id}
               href={categoryNavHref(c.id)}
-              className="cat-tile reveal"
+              className="cat-tile"
+              index={index}
             >
               <NovaGlyph type={c.glyph} className="cat-glyph" />
               <span>{c.label}</span>
               <span className="cat-arr">
                 <Icon name="arrow" size={16} />
               </span>
-            </Link>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -127,10 +130,10 @@ export async function FeaturedProducts() {
       <div className="wrap">
         <SectionHead eyebrow="Handpicked" title="Featured this week" />
         <div className="prod-grid">
-          {featured.map((p) => (
-            <div className="reveal" key={p.id}>
+          {featured.map((p, index) => (
+            <Reveal key={p.id} index={index}>
               <NovaProductCard p={p} />
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -145,7 +148,7 @@ export function StorefrontCta() {
       {/* Promo band */}
       <section className="section">
         <div className="wrap">
-          <div className="promo reveal">
+          <Reveal className="promo">
             <div className="promo-text">
               <div
                 className="eyebrow"
@@ -178,7 +181,7 @@ export function StorefrontCta() {
               </Link>
             </div>
             <NovaGlyph type="headphones" className="promo-glyph" />
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -196,8 +199,8 @@ export function StorefrontCta() {
                 "Chat with experts, 7 days a week.",
               ],
             ] as const
-          ).map(([ic, t, d]) => (
-            <div className="value-item reveal" key={t}>
+          ).map(([ic, t, d], index) => (
+            <Reveal className="value-item" key={t} index={index}>
               <div className="value-ic">
                 <Icon name={ic} size={22} />
               </div>
@@ -207,7 +210,7 @@ export function StorefrontCta() {
                   {d}
                 </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>

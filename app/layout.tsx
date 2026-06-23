@@ -3,7 +3,7 @@ import { inter, outfit, sora, manrope } from "@/app/ui/fonts";
 import type { Metadata, Viewport } from "next";
 import Providers from "@/app/providers";
 import { rootMetadata } from "@/app/lib/seo";
-import AIChatbot from "@/components/AIChatbot";
+import AIChatbotLazy from "@/components/AIChatbotLazy";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import {
   GoogleTagManagerNoScript,
@@ -27,20 +27,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <GoogleTagManagerScript />
-        <GoogleAnalytics />
-      </head>
+      <head />
       <body
         className={`${inter.variable} ${outfit.variable} ${sora.variable} ${manrope.variable} font-sans antialiased`}
       >
+        <GoogleTagManagerScript />
         <GoogleTagManagerNoScript />
+        <GoogleAnalytics />
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
         <Providers>
           {children}
-          <AIChatbot />
+          <AIChatbotLazy />
         </Providers>
         <Analytics />
       </body>

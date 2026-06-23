@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { StorefrontPoster } from "@/app/lib/definitions";
 import { productPath } from "@/app/lib/product-path";
 import { SafeImage } from "@/app/ui/shared/safe-image";
+import { Reveal } from "@/app/ui/nova/reveal";
 
 type PosterTickerStripProps = {
   posters: StorefrontPoster[];
@@ -96,14 +97,16 @@ export function PosterTickerStrip({ posters }: PosterTickerStripProps) {
           aria-roledescription="carousel"
           aria-label="Featured promotions carousel"
         >
-          {posters.map((poster) => {
+          {posters.map((poster, index) => {
             const label = poster.altText ?? poster.product.name;
 
             return (
-              <Link
+              <Reveal
+                as={Link}
                 key={poster.id}
                 href={productPath(poster.product)}
-                className="poster-card reveal"
+                className="poster-card"
+                index={index}
                 aria-label={label}
               >
                 <SafeImage
@@ -113,7 +116,7 @@ export function PosterTickerStrip({ posters }: PosterTickerStripProps) {
                   className="poster-card-img"
                   sizes="(max-width: 640px) 62vw, (max-width: 1024px) 34vw, 22vw"
                 />
-              </Link>
+              </Reveal>
             );
           })}
         </div>

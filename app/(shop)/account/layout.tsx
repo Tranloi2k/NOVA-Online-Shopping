@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import AccountNav from "./account-nav";
+import "@/app/ui/account.css";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "default-no-store";
 
 export default async function AccountLayout({
   children,

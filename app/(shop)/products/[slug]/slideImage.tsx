@@ -1,8 +1,33 @@
-"use client";
-import { useState } from "react";
-import clsx from "clsx";
+import dynamic from "next/dynamic";
 import { getSafeImageUrl } from "@/app/lib/utils";
 import { SafeImage } from "@/app/ui/shared/safe-image";
+
+const SlideImageGallery = dynamic(() => import("./slideImageGallery"), {
+  loading: () => (
+    <div className="pdp-stage" aria-hidden>
+      <div className="absolute inset-0 animate-pulse bg-[var(--surface-muted)]" />
+    </div>
+  ),
+});
+
+function SingleSlideImage({ src, name }: { src: string; name: string }) {
+  return (
+    <div>
+      <div className="pdp-stage">
+        <SafeImage
+          src={src}
+          alt={name}
+          fill
+          className="object-contain p-8 md:p-12"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          priority
+          fetchPriority="high"
+          style={{ position: "absolute", inset: 0 }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function SlideImage({
   images,
@@ -11,11 +36,9 @@ export default function SlideImage({
   images: string[];
   name: string;
 }) {
-  // Filter invalid URLs; external vendor hosts render via <img> (see SafeImage).
-  const validImages = images.map(getSafeImageUrl).filter((u): u is string => !!u);
-  const displayImages = validImages.length > 0 ? validImages : [];
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const thumbs = displayImages.slice(0, 3);
+  const displayImages = images
+    .map(getSafeImageUrl)
+    .filter((url): url is string => !!url);
 
   if (displayImages.length === 0) {
     return (
@@ -25,49 +48,9 @@ export default function SlideImage({
     );
   }
 
-  return (
-    <div>
-      <div className="pdp-stage">
-        <SafeImage
-          src={displayImages[currentIndex]}
-          alt={name}
-          fill
-          className="object-contain p-8 md:p-12"
-          sizes="(max-width: 768px) 100vw, 50vw"
-          priority={currentIndex === 0}
-          fetchPriority={currentIndex === 0 ? "high" : "auto"}
-          style={{ position: "absolute", inset: 0 }}
-        />
-      </div>
-      {displayImages.length > 1 && (
-        <div className="pdp-thumbs">
-          {thumbs.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={clsx("pdp-thumb tile")}
-              style={{
-                aspectRatio: "1/1",
-                outline:
-                  currentIndex === index
-                    ? "2px solid var(--accent)"
-                    : "2px solid transparent",
-                outlineOffset: 2,
-              }}
-            >
-              <div style={{ position: "relative", width: "60%", height: "60%" }}>
-                <SafeImage
-                  src={image}
-                  alt={`${name} ${index + 1}`}
-                  fill
-                  className="object-contain"
-                  sizes="80px"
-                />
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  if (displayImages.length === 1) {
+    return <SingleSlideImage src={displayImages[0]} name={name} />;
+  }
+
+  return <SlideImageGallery images={displayImages} name={name} />;
 }
