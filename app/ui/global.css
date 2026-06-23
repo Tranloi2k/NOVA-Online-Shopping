@@ -2453,6 +2453,19 @@ html.reveal-ready .reveal:not(.in) {
 
 /* RESPONSIVE */
 @media (max-width: 1100px) {
+  /* Header: collapse the inline nav behind the mobile menu button */
+  .head-nav {
+    display: none;
+  }
+  .head-actions {
+    margin-left: auto;
+  }
+  .show-md {
+    display: none;
+  }
+  .hide-md {
+    display: grid;
+  }
   .prod-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -2466,6 +2479,13 @@ html.reveal-ready .reveal:not(.in) {
   /* PDP mobile */
   .pdp-main {
     padding-block: 12px 48px;
+  }
+  .pdp-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .pdp-gallery {
+    position: static;
   }
   .pdp-crumbs {
     margin-bottom: 16px;
@@ -2548,6 +2568,20 @@ html.reveal-ready .reveal:not(.in) {
     gap: 4px;
   }
 
+}
+
+/* Auth screen: drop the two-column split before the columns get too
+   narrow to read (the editorial aside text and the form both need
+   ~350px+ to lay out), and just show the form. */
+@media (max-width: 860px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+    min-height: 0;
+  }
+  .auth-aside {
+    display: none;
+  }
 }
 
 /* Custom Confirm Modal Animations */
