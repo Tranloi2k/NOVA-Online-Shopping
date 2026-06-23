@@ -8,6 +8,7 @@ import {
   GoogleTagManagerNoScript,
   GoogleTagManagerScript,
 } from "@/components/GoogleTagManager";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = rootMetadata;
 
@@ -39,6 +40,7 @@ export default function RootLayout({
           {children}
           <AIChatbot />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
