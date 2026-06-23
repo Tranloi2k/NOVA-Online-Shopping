@@ -12,9 +12,7 @@ xAI Grok
 
 ## 🎥 Demo Video
 
-
-
-### Demo: [https://nova-online-shop.xyz/](https://nova-online-shop.xyz/) , **[**https://nova-online-shopping.vercel.app/](http://nova-online-shop.xyz)
+### Demo: [https://nova-online-shop.xyz/](https://nova-online-shop.xyz/)
 
 ## ✨ Features
 
