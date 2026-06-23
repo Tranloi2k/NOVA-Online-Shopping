@@ -9,6 +9,10 @@ import {
   getProductOgImage,
   productPath,
 } from "@/app/lib/seo";
+import {
+  getProductGalleryImages,
+  parseCommaSeparatedList,
+} from "@/app/lib/product-fields";
 import { productDetailJsonLd } from "@/app/lib/seo-structured-data";
 import JsonLd from "@/app/ui/seo/json-ld";
 import { StarIcon } from "@heroicons/react/24/solid";
@@ -62,9 +66,9 @@ export default async function ProductPage(props: {
 
   const product = {
     ...data,
-    colors: data.colors.split(","),
-    storageOptions: data.storageOptions ? data.storageOptions.split(",") : [],
-    images: data.images.split(","),
+    colors: parseCommaSeparatedList(data.colors),
+    storageOptions: parseCommaSeparatedList(data.storageOptions),
+    images: getProductGalleryImages(data),
   };
 
   let prodDetail: Record<string, unknown> | null = null;
