@@ -2480,6 +2480,13 @@ html.reveal-ready .reveal:not(.in) {
   .pdp-main {
     padding-block: 12px 48px;
   }
+  .pdp-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .pdp-gallery {
+    position: static;
+  }
   .pdp-crumbs {
     margin-bottom: 16px;
     min-width: 0;
