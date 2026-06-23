@@ -1,4 +1,3 @@
-import { getCatalogAuthenticated } from "@/app/lib/catalog-auth";
 import {
   getAllProductSlugParams,
   getProductById,
@@ -19,9 +18,18 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
 import SlideImage from "./slideImage";
 import ProductForm from "./productForm";
-import ProductTabs from "./productTabs";
+import dynamic from "next/dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
+
+const ProductTabs = dynamic(() => import("./productTabs"), {
+  loading: () => (
+    <div className="pdp-tabs" style={{ marginTop: 48 }}>
+      <div className="h-10 w-full max-w-md animate-pulse rounded-md bg-[var(--surface-muted)]" />
+      <div className="mt-6 h-40 w-full animate-pulse rounded-lg bg-[var(--surface-muted)]" />
+    </div>
+  ),
+});
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -53,8 +61,7 @@ export default async function ProductPage(props: {
 }) {
   const { slug } = await props.params;
   const id = slug.split(".").pop() || "";
-  const authenticated = await getCatalogAuthenticated();
-  const data = await getProductById(id, { authenticated });
+  const data = await getProductById(id, { authenticated: false });
   const { reviews } = data;
   const reviewTotal =
     Array.isArray(reviews) && reviews.length > 0

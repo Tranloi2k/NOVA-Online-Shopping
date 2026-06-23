@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import clsx from "clsx";
 import { Icon } from "@/app/ui/nova/nova-icons";
@@ -25,15 +23,7 @@ function productHref(p: NovaProduct) {
   return `/products/${p.name.replace(/ /g, "-")}.${p.id}`;
 }
 
-export function NovaProductCard({
-  p,
-  isFav,
-  onFav,
-}: {
-  p: NovaProduct;
-  isFav?: boolean;
-  onFav?: (id: number) => void;
-}) {
+export function NovaProductCard({ p }: { p: NovaProduct }) {
   const rating = p.rating ?? 0;
   const outOfStock = isOutOfStock(p.stock);
   const hasDiscount = (p.discount ?? 0) > 0;
@@ -69,19 +59,6 @@ export function NovaProductCard({
             <span className="tag sale">Save {p.discount}%</span>
           )}
         </div>
-        {onFav && (
-          <button
-            className="fav-btn"
-            aria-label="Save"
-            onClick={(e) => {
-              e.preventDefault();
-              onFav(p.id);
-            }}
-            style={{ color: isFav ? "var(--sale)" : "var(--ink)" }}
-          >
-            <Icon name="heart" size={17} />
-          </button>
-        )}
       </Link>
 
       <div className="prod-body">
@@ -111,7 +88,6 @@ export function NovaProductCard({
               href={productHref(p)}
               className="add-mini"
               aria-label="View product"
-              onClick={(e) => e.stopPropagation()}
             >
               <Icon name="plus" size={18} sw={2.2} />
             </Link>

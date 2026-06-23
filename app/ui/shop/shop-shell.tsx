@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import NovaHeader from "@/app/ui/nova/nova-header";
 import NovaFooter from "@/app/ui/nova/nova-footer";
-import { NovaCartDrawer } from "@/app/ui/nova/nova-cart-drawer";
+import { NovaCartDrawerLazy } from "@/app/ui/nova/nova-cart-drawer-lazy";
 import { CartDrawerProvider } from "@/app/ui/nova/cart-drawer-context";
 
 function HeaderFallback() {
@@ -21,7 +21,7 @@ export default function ShopShell({ children }: { children: React.ReactNode }) {
         </Suspense>
         <main id="main-content" className="shop-main">{children}</main>
         <NovaFooter />
-        <NovaCartDrawer />
+        <NovaCartDrawerLazy />
       </div>
     </CartDrawerProvider>
   );

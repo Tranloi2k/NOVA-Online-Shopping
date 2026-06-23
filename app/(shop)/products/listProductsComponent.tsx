@@ -1,93 +1,28 @@
-"use client";
-
 import type { ProductListItem } from "@/app/lib/definitions";
 import type { ProductView } from "@/app/lib/product-filters";
 import { productPath } from "@/app/lib/product-path";
 import { formatMoney } from "@/app/ui/nova/nova-utils";
-import { Icon } from "@/app/ui/nova/nova-icons";
 import { Stars } from "@/app/ui/nova/nova-stars";
+import { NovaProductCard } from "@/app/ui/nova/nova-product-card";
+import { Reveal } from "@/app/ui/nova/reveal";
 import { getSafeImageUrl } from "@/app/lib/utils";
 import { isOutOfStock } from "@/app/lib/product-stock";
 import Link from "next/link";
 import { SafeImage } from "@/app/ui/shared/safe-image";
 import clsx from "clsx";
 
-
-function ProductCard({ p, index }: { p: ProductListItem; index: number }) {
-  const rating = p.rate ?? p.rating ?? 0;
-  const outOfStock = isOutOfStock(p.stock);
-  const hasDiscount = (p.discount ?? 0) > 0;
-  const originalPrice = hasDiscount
-    ? Math.round(p.price / (1 - (p.discount ?? 0) / 100))
-    : undefined;
-  const imgSrc = getSafeImageUrl(p.image);
-
-  return (
-    <article className={clsx("card prod-card reveal", outOfStock && "is-out-of-stock")}>
-      <Link href={productPath(p)} style={{ display: "block", position: "relative" }}>
-        <div className="tile" style={{ aspectRatio: "4 / 3" }}>
-          <div style={{ width: "64%", display: "grid", placeItems: "center" }}>
-            {imgSrc ? (
-              <SafeImage
-                src={imgSrc}
-                alt={p.name}
-                width={260}
-                height={260}
-                priority={index === 0}
-                fetchPriority={index === 0 ? "high" : undefined}
-                className="object-contain"
-                style={{ width: "100%", height: "auto", transition: "transform .5s" }}
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-            ) : (
-              <div style={{ width: "100%", aspectRatio: "1", background: "var(--surface-muted)" }} />
-            )}
-          </div>
-        </div>
-        <div className="prod-badges">
-          {outOfStock && <span className="tag oos">Out of stock</span>}
-          {!outOfStock && p.isNew && <span className="tag dark">New</span>}
-          {!outOfStock && hasDiscount && <span className="tag sale">Save {p.discount}%</span>}
-        </div>
-      </Link>
-
-      <div className="prod-body">
-        <h3 style={{ fontSize: 17, marginTop: 3 }}>
-          <Link href={productPath(p)}>{p.name}</Link>
-        </h3>
-        {rating > 0 && (
-          <div style={{ marginTop: 7 }}>
-            <Stars r={rating} showNum count={p.reviewCount} />
-          </div>
-        )}
-        <div className="prod-foot">
-          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-            <span className="price" style={{ fontSize: 19 }}>
-              {formatMoney(p.price)}
-            </span>
-            {originalPrice && (
-              <span className="strike" style={{ fontSize: 14 }}>
-                {formatMoney(originalPrice)}
-              </span>
-            )}
-          </div>
-          {outOfStock ? (
-            <button disabled className="add-mini is-disabled" aria-label="Out of stock">
-              <Icon name="plus" size={18} sw={2.2} />
-            </button>
-          ) : (
-            <Link
-              href={productPath(p)}
-              className="add-mini"
-              aria-label="View product"
-            >
-              <Icon name="plus" size={18} sw={2.2} />
-            </Link>
-          )}
-        </div>
-      </div>
-    </article>
-  );
+function toNovaProduct(p: ProductListItem) {
+  return {
+    id: p.id,
+    name: p.name,
+    image: p.image,
+    price: p.price,
+    stock: p.stock,
+    rating: p.rate ?? p.rating,
+    reviewCount: p.reviewCount,
+    isNew: p.isNew,
+    discount: p.discount,
+  };
 }
 
 export default function ListProductsComponent({
@@ -120,9 +55,11 @@ export default function ListProductsComponent({
             : undefined;
           const listImgSrc = getSafeImageUrl(p.image);
           return (
-            <article
+            <Reveal
+              as="article"
               key={p.id}
-              className={clsx("card reveal", outOfStock && "is-out-of-stock")}
+              index={index}
+              className={clsx("card", outOfStock && "is-out-of-stock")}
               style={{ display: "flex", gap: 20, marginBottom: 4, padding: 0, overflow: "hidden" }}
             >
               <Link
@@ -146,12 +83,22 @@ export default function ListProductsComponent({
                   )}
                 </div>
               </Link>
-              <div style={{ flex: 1, padding: "22px 22px 22px 0", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div
+                style={{
+                  flex: 1,
+                  padding: "22px 22px 22px 0",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
                 <div>
                   <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
                     {outOfStock && <span className="tag oos">Out of stock</span>}
                     {!outOfStock && p.isNew && <span className="tag dark">New</span>}
-                    {!outOfStock && hasDiscount && <span className="tag sale">Save {p.discount}%</span>}
+                    {!outOfStock && hasDiscount && (
+                      <span className="tag sale">Save {p.discount}%</span>
+                    )}
                   </div>
                   <h3 style={{ fontSize: 17 }}>
                     <Link href={productPath(p)}>{p.name}</Link>
@@ -162,7 +109,14 @@ export default function ListProductsComponent({
                     </div>
                   )}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginTop: 16,
+                  }}
+                >
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
                     <span className="price" style={{ fontSize: 19 }}>
                       {formatMoney(p.price)}
@@ -184,7 +138,7 @@ export default function ListProductsComponent({
                   )}
                 </div>
               </div>
-            </article>
+            </Reveal>
           );
         })}
       </div>
@@ -194,7 +148,9 @@ export default function ListProductsComponent({
   return (
     <div className="prod-grid" style={{ marginTop: 28 }}>
       {products.map((p, index) => (
-        <ProductCard key={p.id} p={p} index={index} />
+        <Reveal key={p.id} index={index}>
+          <NovaProductCard p={toNovaProduct(p)} />
+        </Reveal>
       ))}
     </div>
   );

@@ -60,6 +60,7 @@ export function SafeImage({
         className={className}
         style={imgStyle}
         loading={priority ? "eager" : "lazy"}
+        decoding="async"
         fetchPriority={fetchPriority}
       />
     );

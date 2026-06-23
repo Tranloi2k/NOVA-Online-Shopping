@@ -14,8 +14,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "default-no-store";
+export const revalidate = 60;
 
 function getPageTitle(category?: string, query?: string) {
   if (query) return `Results for "${query}"`;

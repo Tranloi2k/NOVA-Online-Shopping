@@ -8,7 +8,7 @@ export const inter = Inter({
 
 export const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "600"],
   variable: "--font-outfit",
   display: "swap",
 });
@@ -21,14 +21,14 @@ export const lusitana = Lusitana({
 
 export const sora = Sora({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "600", "700", "800"],
   variable: "--font-sora",
   display: "swap",
 });
 
 export const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "600", "700", "800"],
   variable: "--font-manrope",
   display: "swap",
 });
