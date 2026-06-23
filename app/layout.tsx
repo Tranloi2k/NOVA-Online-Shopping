@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import Providers from "@/app/providers";
 import { rootMetadata } from "@/app/lib/seo";
 import AIChatbot from "@/components/AIChatbot";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import {
   GoogleTagManagerNoScript,
   GoogleTagManagerScript,
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <GoogleTagManagerScript />
+        <GoogleAnalytics />
       </head>
       <body
         className={`${inter.variable} ${outfit.variable} ${sora.variable} ${manrope.variable} font-sans antialiased`}
