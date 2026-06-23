@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getSafeImageUrl } from "@/app/lib/utils";
 
 export { productPath, productSlug } from "@/app/lib/product-path";
 export const SITE_NAME = "NOVA";
@@ -88,6 +89,79 @@ export function absoluteImageUrl(src: string): string {
   return new URL(path, getSiteUrl()).toString();
 }
 
+const OG_IMAGE_WIDTH = 1200;
+const OG_IMAGE_HEIGHT = 630;
+
+/** Facebook-friendly JPG via Cloudinary; keeps other hosts unchanged. */
+export function optimizeOgImageUrl(src: string): string {
+  const absolute = absoluteImageUrl(src);
+
+  if (absolute.includes("res.cloudinary.com") && absolute.includes("/upload/")) {
+    if (absolute.includes("w_1200")) return absolute;
+    return absolute.replace(
+      "/upload/",
+      `/upload/w_${OG_IMAGE_WIDTH},h_${OG_IMAGE_HEIGHT},c_fill,f_jpg,q_auto/`,
+    );
+  }
+
+  if (absolute.includes("store.storeimages.cdn-apple.com")) {
+    try {
+      const url = new URL(absolute);
+      url.searchParams.set("wid", String(OG_IMAGE_WIDTH));
+      url.searchParams.set("hei", String(OG_IMAGE_HEIGHT));
+      return url.toString();
+    } catch {
+      return absolute;
+    }
+  }
+
+  return absolute;
+}
+
+export function getProductOgImage(product: {
+  image?: string | null;
+  images?: string | null;
+}): string {
+  const candidates: string[] = [];
+  if (product.image) candidates.push(product.image);
+  if (product.images) {
+    candidates.push(
+      ...product.images.split(",").map((entry) => entry.trim()).filter(Boolean),
+    );
+  }
+
+  for (const candidate of candidates) {
+    const safe = getSafeImageUrl(candidate);
+    if (safe) return optimizeOgImageUrl(safe);
+  }
+
+  return optimizeOgImageUrl(DEFAULT_OG_IMAGE_PATH);
+}
+
+export function getProductOgDescription(product: {
+  name: string;
+  description?: string | null;
+  price?: number | string | null;
+}): string {
+  const raw =
+    typeof product.description === "string" ? product.description.trim() : "";
+  if (raw && raw !== "-" && raw !== "--" && raw.length >= 10) {
+    return raw.slice(0, 160);
+  }
+
+  const price = Number(product.price);
+  if (Number.isFinite(price) && price > 0) {
+    const formatted = price.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    });
+    return `Shop ${product.name} at NOVA — ${formatted} with secure checkout and fast delivery.`;
+  }
+
+  return `Buy ${product.name} at NOVA — premium tech with secure checkout.`;
+}
+
 /** Pages that must not appear in search results. */export const NOINDEX_PATH_PREFIXES = [
   "/cart",
   "/login",
@@ -116,9 +190,17 @@ export function buildPageMetadata(options: {
   noIndex?: boolean;
 }): Metadata {
   const canonical = absoluteUrl(options.pathname);
-  const ogImage = absoluteImageUrl(options.image ?? DEFAULT_OG_IMAGE_PATH);
+  const ogImage = options.image
+    ? optimizeOgImageUrl(options.image)
+    : optimizeOgImageUrl(DEFAULT_OG_IMAGE_PATH);
   const fullTitle =
     options.title.includes(SITE_NAME) ? options.title : `${options.title} | ${SITE_NAME}`;
+  const ogImageEntry = {
+    url: ogImage,
+    alt: options.title,
+    width: OG_IMAGE_WIDTH,
+    height: OG_IMAGE_HEIGHT,
+  };
 
   return {
     title: options.title,
@@ -132,7 +214,7 @@ export function buildPageMetadata(options: {
       siteName: SITE_NAME,
       title: fullTitle,
       description: options.description,
-      images: [{ url: ogImage, alt: options.title }],
+      images: [ogImageEntry],
     },
     twitter: {
       card: "summary_large_image",
