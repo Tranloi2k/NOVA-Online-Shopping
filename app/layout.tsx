@@ -3,6 +3,7 @@ import { inter, outfit, sora, manrope } from "@/app/ui/fonts";
 import type { Metadata, Viewport } from "next";
 import Providers from "@/app/providers";
 import { rootMetadata } from "@/app/lib/seo";
+import AIChatbot from "@/components/AIChatbot";
 
 export const metadata: Metadata = rootMetadata;
 
@@ -23,7 +24,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${outfit.variable} ${sora.variable} ${manrope.variable} font-sans antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <AIChatbot />
+        </Providers>
       </body>
     </html>
   );
