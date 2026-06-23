@@ -30,16 +30,21 @@ export default function NovaFooter() {
               returns on everything.
             </p>
             <div className="foot-social">
-              {["X", "in", "◎", "▶"].map((s, i) => (
-                <span key={i} className="soc">
-                  {s}
-                </span>
+              {[
+                { name: "X", label: "NOVA on X", icon: "X" },
+                { name: "LinkedIn", label: "NOVA on LinkedIn", icon: "in" },
+                { name: "Instagram", label: "NOVA on Instagram", icon: "◎" },
+                { name: "YouTube", label: "NOVA on YouTube", icon: "▶" },
+              ].map((s) => (
+                <a key={s.name} href="#" className="soc" aria-label={s.label}>
+                  {s.icon}
+                </a>
               ))}
             </div>
           </div>
 
           <div className="foot-col">
-            <h4>Shop</h4>
+            <h2>Shop</h2>
             {CATEGORY_NAV_ITEMS.map((c) => (
               <Link key={c.id} href={categoryNavHref(c.id)}>
                 {c.label}
@@ -49,21 +54,33 @@ export default function NovaFooter() {
           </div>
 
           <div className="foot-col">
-            <h4>Support</h4>
-            {["Contact us", "Shipping", "Returns", "Warranty", "Track order"].map(
-              (s) => (
-                <button key={s}>{s}</button>
-              ),
-            )}
+            <h2>Support</h2>
+            {[
+              { name: "Contact us", href: "/contact" },
+              { name: "Shipping", href: "/shipping" },
+              { name: "Returns", href: "/returns" },
+              { name: "Warranty", href: "/warranty" },
+              { name: "Track order", href: "/orders" },
+            ].map((item) => (
+              <Link key={item.name} href={item.href}>
+                {item.name}
+              </Link>
+            ))}
           </div>
 
           <div className="foot-col">
-            <h4>Company</h4>
-            {["About NOVA", "Sustainability", "Careers", "Press", "Stores"].map(
-              (s) => (
-                <button key={s}>{s}</button>
-              ),
-            )}
+            <h2>Company</h2>
+            {[
+              { name: "About NOVA", href: "/about" },
+              { name: "Sustainability", href: "/sustainability" },
+              { name: "Careers", href: "/careers" },
+              { name: "Press", href: "/press" },
+              { name: "Stores", href: "/stores" },
+            ].map((item) => (
+              <Link key={item.name} href={item.href}>
+                {item.name}
+              </Link>
+            ))}
           </div>
         </div>
 
@@ -72,8 +89,14 @@ export default function NovaFooter() {
             © {new Date().getFullYear()} NOVA Shop. All rights reserved.
           </span>
           <div style={{ display: "flex", gap: 22 }}>
-            {["Privacy", "Terms", "Cookies"].map((s) => (
-              <button key={s}>{s}</button>
+            {[
+              { name: "Privacy", href: "/privacy" },
+              { name: "Terms", href: "/terms" },
+              { name: "Cookies", href: "/cookies" },
+            ].map((item) => (
+              <Link key={item.name} href={item.href}>
+                {item.name}
+              </Link>
             ))}
           </div>
         </div>

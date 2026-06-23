@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "@/app/lib/hooks/use-focus-trap";
 import clsx from "clsx";
 
 function getMessageText(message: UIMessage): string {
@@ -21,6 +22,7 @@ export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatbotRef = useFocusTrap<HTMLDivElement>(isOpen, () => setIsOpen(false));
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
@@ -47,6 +49,7 @@ export default function AIChatbot() {
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
       {isOpen && (
         <div
+          ref={chatbotRef}
           className="flex w-[360px] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl"
           style={{ height: 500 }}
           role="dialog"
@@ -125,6 +128,7 @@ export default function AIChatbot() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder="Type your question..."
+              aria-label="Type your question"
               disabled={status !== "ready"}
               className="flex-1 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             />

@@ -50,7 +50,8 @@ export function PosterTickerStrip({ posters }: PosterTickerStripProps) {
       const firstCard = rail.querySelector<HTMLElement>(".poster-card");
       const gap = 16;
       const step = ((firstCard?.offsetWidth ?? 340) + gap) * direction;
-      rail.scrollBy({ left: step, behavior: "smooth" });
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      rail.scrollBy({ left: step, behavior: prefersReducedMotion ? "auto" : "smooth" });
       window.setTimeout(updateScrollState, 320);
     },
     [updateScrollState],
@@ -90,6 +91,10 @@ export function PosterTickerStrip({ posters }: PosterTickerStripProps) {
           ref={railRef}
           className="poster-rail-track"
           onScroll={updateScrollState}
+          tabIndex={0}
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Featured promotions carousel"
         >
           {posters.map((poster) => {
             const label = poster.altText ?? poster.product.name;

@@ -83,7 +83,7 @@ input[type="number"]::-webkit-outer-spin-button {
   --ink: #0a0a0b;
   --ink-soft: #1d1d1f;
   --muted: #6e6e73;
-  --muted-2: #86868b;
+  --muted-2: #767679;
   --hair: #e3e3e6;
   --hair-soft: #ededf0;
 
@@ -412,6 +412,7 @@ ul {
 }
 .input:focus {
   box-shadow: inset 0 0 0 2px var(--accent);
+  outline: 2px solid transparent;
 }
 
 /* Nova Utilities */
@@ -1896,11 +1897,13 @@ html.reveal-ready .reveal:not(.in) {
   backdrop-filter: blur(3px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s var(--ease);
+  visibility: hidden;
+  transition: opacity 0.35s var(--ease), visibility 0.35s var(--ease);
 }
 .drawer-scrim.open {
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
 }
 .drawer {
   position: absolute;
@@ -1994,7 +1997,8 @@ html.reveal-ready .reveal:not(.in) {
 .soc:hover {
   background: var(--accent);
 }
-.foot-col h4 {
+.foot-col h4,
+.foot-col h2 {
   color: #fff;
   font-size: 14px;
   margin-bottom: 16px;
@@ -2932,3 +2936,46 @@ html.reveal-ready .reveal:not(.in) {
 .animate-confirm-modal {
   animation: modalScaleIn 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ============================================================
+   ACCESSIBILITY & KEYBOARD FOCUS STYLES
+   ============================================================ */
+
+/* Global focus-visible indicator */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* High contrast / reverse focus colors on dark header/footer elements */
+.site-foot a:focus-visible,
+.site-foot button:focus-visible {
+  outline-color: #ffffff;
+}
+
+.btn-dark:focus-visible,
+.avatar-btn:focus-visible {
+  outline-color: #ffffff;
+  box-shadow: 0 0 0 4px var(--accent);
+}
+
+/* Skip link positioning and visibility */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  z-index: 9999;
+  transition: top 0.2s ease-in-out;
+  text-decoration: none;
+}
+.skip-link:focus-visible {
+  top: 16px;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+

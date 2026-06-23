@@ -11,6 +11,7 @@ import type { CartItem, CartSummary } from "@/app/lib/definitions";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 import { getSafeImageUrl } from "@/app/lib/utils";
 import { getCartStockIssue, getProductStock } from "@/app/lib/product-stock";
+import { useFocusTrap } from "@/app/lib/hooks/use-focus-trap";
 
 export function NovaCartDrawer() {
   const { isOpen, close } = useCartDrawer();
@@ -19,6 +20,7 @@ export function NovaCartDrawer() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { requireAuth } = useRequireAuth();
+  const drawerRef = useFocusTrap<HTMLElement>(isOpen, close);
 
   const handleCheckout = async () => {
     if (items.length === 0 || stockIssue) return;
@@ -74,9 +76,12 @@ export function NovaCartDrawer() {
   return (
     <div className={`drawer-scrim${isOpen ? " open" : ""}`} onClick={close}>
       <aside
+        ref={drawerRef}
         className={`drawer${isOpen ? " open" : ""}`}
         onClick={(e) => e.stopPropagation()}
         aria-label="Shopping bag"
+        role="dialog"
+        aria-modal="true"
       >
         <div className="drawer-head">
           <h3 style={{ fontSize: 20 }}>Your bag</h3>
