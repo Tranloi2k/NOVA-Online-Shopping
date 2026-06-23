@@ -24,7 +24,10 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
   const containerRef = useRef<T | null>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   // Initial focus + restore — only when trap opens/closes, not on parent re-renders.
   useEffect(() => {
