@@ -4,6 +4,10 @@ import type { Metadata, Viewport } from "next";
 import Providers from "@/app/providers";
 import { rootMetadata } from "@/app/lib/seo";
 import AIChatbot from "@/components/AIChatbot";
+import {
+  GoogleTagManagerNoScript,
+  GoogleTagManagerScript,
+} from "@/components/GoogleTagManager";
 
 export const metadata: Metadata = rootMetadata;
 
@@ -21,9 +25,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <GoogleTagManagerScript />
       <body
         className={`${inter.variable} ${outfit.variable} ${sora.variable} ${manrope.variable} font-sans antialiased`}
       >
+        <GoogleTagManagerNoScript />
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <Providers>
           {children}
           <AIChatbot />

@@ -31,7 +31,9 @@ export function NovaNewsletter() {
               </div>
             ) : (
               <>
+                <label className="sr-only" htmlFor="newsletter-email">Email address</label>
                 <input
+                  id="newsletter-email"
                   className="input"
                   type="email"
                   required

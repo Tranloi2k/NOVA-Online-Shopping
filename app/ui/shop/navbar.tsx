@@ -219,8 +219,13 @@ export default function ShopNavbar() {
 
             <div className="relative user-menu-container">
               <button
+                id="user-menu-button"
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 rounded-shop p-1.5 pr-2.5 transition-colors hover:bg-shop-surface-muted"
+                aria-expanded={showUserMenu}
+                aria-haspopup="true"
+                aria-controls="user-menu-dropdown"
+                aria-label="User menu"
               >
                 <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-shop-surface-muted">
                   {displayUser.avatar ? (
@@ -244,7 +249,12 @@ export default function ShopNavbar() {
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-52 overflow-hidden rounded-shop-lg border border-shop-border bg-shop-surface shadow-shop-lg">
+                <div
+                  id="user-menu-dropdown"
+                  role="menu"
+                  aria-labelledby="user-menu-button"
+                  className="absolute right-0 mt-2 w-52 overflow-hidden rounded-shop-lg border border-shop-border bg-shop-surface shadow-shop-lg"
+                >
                   <div className="border-b border-shop-border-subtle px-4 py-3">
                     <p className="truncate text-sm font-medium text-shop-text">
                       {displayUser.name}
@@ -258,12 +268,14 @@ export default function ShopNavbar() {
                   <div className="py-1">
                     <Link
                       href="/products"
+                      role="menuitem"
                       className="block px-4 py-2 text-sm text-shop-secondary transition-colors hover:bg-shop-surface-muted hover:text-shop-text"
                       onClick={() => setShowUserMenu(false)}
                     >
                       My orders
                     </Link>
                     <button
+                      role="menuitem"
                       onClick={() => setShowConfirmModal(true)}
                       className="w-full px-4 py-2 text-left text-sm text-shop-error transition-colors hover:bg-red-50"
                     >

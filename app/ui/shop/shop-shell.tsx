@@ -19,7 +19,7 @@ export default function ShopShell({ children }: { children: React.ReactNode }) {
         <Suspense fallback={<HeaderFallback />}>
           <NovaHeader />
         </Suspense>
-        <main className="shop-main">{children}</main>
+        <main id="main-content" className="shop-main">{children}</main>
         <NovaFooter />
         <NovaCartDrawer />
       </div>

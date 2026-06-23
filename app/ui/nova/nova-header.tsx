@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { useCartDrawer } from "@/app/ui/nova/cart-drawer-context";
+import { useFocusTrap } from "@/app/lib/hooks/use-focus-trap";
 import { CART_UPDATED_EVENT, syncCartBadge } from "@/app/lib/cart-events";
 import { categoryNavHref, CATEGORY_NAV_ITEMS } from "@/app/lib/product-filters";
 import { getCartSummary } from "@/app/lib/services/cart";
@@ -58,6 +59,7 @@ export default function NovaHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const mobileMenuRef = useFocusTrap<HTMLDivElement>(menuOpen, () => setMenuOpen(false));
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -138,7 +140,7 @@ export default function NovaHeader() {
           )}
         </Link>
 
-        <nav className="head-nav">
+        <nav className="head-nav" aria-label="Main navigation">
           <Link
             href="/"
             className={`nav-link${pathname === "/" ? " is-active" : ""}`}
@@ -199,6 +201,7 @@ export default function NovaHeader() {
           <button
             className="icon-btn hide-md head-menu-btn"
             aria-label="Menu"
+            aria-expanded={menuOpen}
             onClick={() => setMenuOpen(true)}
           >
             <Icon name="menu" size={22} />
@@ -209,7 +212,14 @@ export default function NovaHeader() {
       {isClient &&
         menuOpen &&
         createPortal(
-          <div className="mobile-menu" onClick={() => setMenuOpen(false)}>
+          <div
+            ref={mobileMenuRef}
+            className="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation menu"
+            onClick={() => setMenuOpen(false)}
+          >
             <div
               className="mobile-menu-panel"
               onClick={(e) => e.stopPropagation()}

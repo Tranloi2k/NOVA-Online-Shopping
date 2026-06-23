@@ -1,17 +1,20 @@
 # 🛍️ NovaShop — Online Shopping (Next.js)
 
-The customer-facing storefront for **NovaShop**, built with Next.js 15. Browse products, manage your cart, authenticate securely, and checkout with Stripe — powered by the [NovaShop NestJS API](https://github.com/Tranloi2k/nestjs-app).
+The customer-facing storefront for **NovaShop**, built with Next.js 15. Browse products, manage your cart, authenticate securely, checkout with Stripe, and get help from an **AI shopping assistant** — powered by the [NovaShop NestJS API](https://github.com/Tranloi2k/nestjs-app).
 
-![Next.js](https://img.shields.io/badge/Next.js-15.0-black?style=flat-square&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.0-38B2AC?style=flat-square&logo=tailwind-css)
-![NestJS](https://img.shields.io/badge/NestJS-Backend-E0234E?style=flat-square&logo=nestjs)
-![Stripe](https://img.shields.io/badge/Stripe-Payment-635BFF?style=flat-square&logo=stripe)
+Next.js
+TypeScript
+Tailwind CSS
+NestJS
+Stripe
+Vercel AI SDK
+xAI Grok
 
 ## 🎥 Demo Video
-<video src="./Screen%20Recording%202026-06-07%20172225.mp4" controls width="100%"></video>
 
-### Demo: https://nova-online-shopping.vercel.app/
+
+
+### Demo: [https://nova-online-shop.xyz/](https://nova-online-shop.xyz/) , **[**https://nova-online-shopping.vercel.app/](http://nova-online-shop.xyz)
 
 ## ✨ Features
 
@@ -22,6 +25,13 @@ The customer-facing storefront for **NovaShop**, built with Next.js 15. Browse p
 - **Shopping Cart** - Add to cart and manage quantities
 - **Stripe Checkout** - Secure payment processing
 - **Order Management** - Track purchases and order history
+
+### 🤖 **AI Shopping Assistant**
+
+- **xAI Grok** - Powered by Grok via [Vercel AI SDK](https://sdk.vercel.ai/)
+- **Store Knowledge** - Policies, FAQ, categories, and key pages (`app/lib/chat/site-knowledge.ts`)
+- **Live Product Catalog** - Injects product snapshot from the NestJS API into each chat session
+- **Product Search Tool** - AI can search products by keyword, category, price, and sale status
 
 ### 🔐 **Authentication & Security**
 
@@ -63,15 +73,22 @@ The customer-facing storefront for **NovaShop**, built with Next.js 15. Browse p
 - **Stripe Checkout** - Hosted payment pages
 - **Webhooks** - Real-time payment events
 
+### **AI**
+
+- **Vercel AI SDK** (`ai`, `@ai-sdk/react`) - Streaming chat and tool calling
+- **@ai-sdk/openai** - OpenAI-compatible client for x.ai (`baseURL: https://api.x.ai/v1`)
+- **xAI Grok** - `grok-3-latest` via Chat Completions API
+
 ## 🚀 Getting Started
 
 ### **Prerequisites**
 
 ```bash
 Node.js 18.0+
-npm or yarn
+pnpm (recommended) or npm
 NestJS Backend API running
 Stripe account
+xAI API key (for AI assistant)
 ```
 
 ### **Installation**
@@ -83,20 +100,20 @@ git clone https://github.com/Tranloi2k/nextjs-dashboard.git nova-online-shopping
 cd nova-online-shopping-nextjs
 ```
 
-2. **Install dependencies**
+1. **Install dependencies**
 
 ```bash
-npm install
+pnpm install
 # or
-yarn install
+npm install
 ```
 
-3. **Environment Setup**
-   Create `.env.local` file in the root directory:
+1. **Environment Setup**
+  Create `.env.local` file in the root directory:
 
 ```env
 # NestJS Backend API
-NEXT_PUBLIC_EXTERNAL_API_URL="http://localhost:5000/api"
+NEXT_PUBLIC_EXTERNAL_API_URL="http://localhost:5000"
 
 # Stripe (checkout redirects via server-generated session URL)
 STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
@@ -106,12 +123,16 @@ INTERNAL_WEBHOOK_SECRET="change_me_internal_webhook_secret"
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
+# AI Assistant (x.ai)
+XAI_API_KEY="xai_your_api_key"
+
 # Authentication (Optional)
 NEXTAUTH_SECRET="your_nextauth_secret"
 NEXTAUTH_URL="http://localhost:3000"
+AUTH_SECRET="your_auth_secret"
 ```
 
-4. **Start NestJS Backend**
+1. **Start NestJS Backend**
 
 ```bash
 # Make sure your NestJS backend is running on port 5000
@@ -121,48 +142,47 @@ NEXTAUTH_URL="http://localhost:3000"
 # etc.
 ```
 
-5. **Run the development server**
+1. **Run the development server**
 
 ```bash
-npm run dev
+pnpm dev
 # or
-yarn dev
+npm run dev
 ```
 
-6. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+1. **Open your browser**
+  Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Project Structure
 
 ```
 nova-online-shopping-nextjs/
 ├── app/                          # Next.js App Router
-│   ├── api/                      # API Routes & Proxy
-│   │   ├── [...path]/            # API proxy to NestJS
+│   ├── api/                      # API Routes
+│   │   ├── chat/                 # AI chat streaming endpoint (Grok)
 │   │   ├── checkout/             # Stripe checkout
+│   │   ├── auth/                 # NextAuth handlers
 │   │   └── stripe/               # Stripe webhooks
-│   ├── dashboard/                # Protected dashboard pages
-│   │   ├── products/             # Product management
-│   │   │   ├── [id]/             # Dynamic product pages
-│   │   │   └── page.tsx          # Products listing
-│   │   └── page.tsx              # Dashboard home
-│   ├── lib/                      # Utility functions
-│   │   ├── auth.ts               # Authentication logic
-│   │   ├── checkout-sessions.ts  # Stripe checkout
-│   │   └── products.ts           # Product API calls
+│   ├── lib/
+│   │   ├── chat/                 # AI knowledge base & tools
+│   │   │   ├── site-knowledge.ts # Store policies, FAQ, rules
+│   │   │   ├── product-context.ts# Product catalog formatting
+│   │   │   ├── build-system-prompt.ts
+│   │   │   └── tools.ts          # searchProducts tool
+│   │   ├── services/             # API service layer
+│   │   └── ...
 │   ├── ui/                       # Reusable UI components
-│   │   ├── products/             # Product-specific components
-│   │   ├── button.tsx            # Button component
-│   │   ├── search.tsx            # Search component
-│   │   └── ...                   # Other UI components
-│   ├── login/                    # Authentication pages
+│   ├── (shop)/                   # Storefront routes
 │   ├── checkout/                 # Checkout success/cancel pages
-│   ├── layout.tsx                # Root layout
+│   ├── login/                    # Authentication pages
+│   ├── layout.tsx                # Root layout (includes AIChatbot)
 │   └── page.tsx                  # Home page
+├── components/
+│   └── AIChatbot.tsx             # Floating chat widget (client)
 ├── auth.config.ts                # NextAuth configuration
 ├── middleware.ts                 # Route protection middleware
 ├── tailwind.config.ts            # Tailwind CSS configuration
-├── next.config.js                # Next.js configuration
+├── pnpm-lock.yaml                # Lockfile (use pnpm install)
 └── package.json                  # Dependencies and scripts
 ```
 
@@ -187,6 +207,24 @@ nova-online-shopping-nextjs/
 2. Set up protected routes in middleware
 3. Configure session management
 
+### **AI Assistant Setup**
+
+1. Create an API key at [console.x.ai](https://console.x.ai)
+2. Add `XAI_API_KEY` to `.env.local` (and Vercel project settings for production)
+3. Ensure the NestJS backend is running so the assistant can load product data
+4. Customize store knowledge in `app/lib/chat/site-knowledge.ts` (policies, FAQ, response rules)
+5. Change the model in `app/api/chat/route.ts` if needed (default: `grok-3-latest`)
+
+**How the assistant learns about your store:**
+
+
+| Layer            | File                 | Purpose                          |
+| ---------------- | -------------------- | -------------------------------- |
+| Static knowledge | `site-knowledge.ts`  | Policies, FAQ, categories, rules |
+| Dynamic catalog  | `product-context.ts` | Product snapshot from NestJS API |
+| Tool calling     | `tools.ts`           | `searchProducts` for live search |
+
+
 ## 📚 API Integration
 
 ### **NestJS Backend Endpoints**
@@ -202,6 +240,14 @@ DELETE /api/products/:id       # Delete product
 
 ```
 
+### **AI Chat Endpoint**
+
+```typescript
+POST /api/chat                 # Streaming chat (Vercel AI SDK + xAI Grok)
+```
+
+Request body: `{ messages: UIMessage[] }` from `useChat`. Response: streamed UI message protocol.
+
 ## 🧪 Testing
 
 ### **Test Payment Cards**
@@ -216,7 +262,7 @@ Declined: 4000 0000 0000 0002
 ### **Backend Requirements**
 
 - NestJS backend running on port 5000
-- CORS enabled for http://localhost:3000
+- CORS enabled for [http://localhost:3000](http://localhost:3000)
 - JSON responses for all API calls
 
 ## 🚀 Deployment
@@ -232,6 +278,7 @@ Declined: 4000 0000 0000 0002
 - Update `NEXT_PUBLIC_APP_URL` to your production domain
 - Update Stripe webhook endpoint URL
 - Use production Stripe keys
+- Add `XAI_API_KEY` to Vercel environment variables
 
 ## 🔄 Development Workflow
 
@@ -248,6 +295,8 @@ Declined: 4000 0000 0000 0002
 - [Stripe Documentation](https://stripe.com/docs)
 - [NextAuth.js Documentation](https://next-auth.js.org/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
+- [xAI API Documentation](https://docs.x.ai/)
 
 ## 🤝 Contributing
 
@@ -262,7 +311,7 @@ Declined: 4000 0000 0000 0002
 **Tran Loi**
 
 - GitHub: [@Tranloi2k](https://github.com/Tranloi2k)
-- Email: tranloi20001007@gmail.com
+- Email: [tranloi20001007@gmail.com](mailto:tranloi20001007@gmail.com)
 - Live demo: [nova-online-shopping.vercel.app](https://nova-online-shopping.vercel.app/)
 
 ## 🙏 Acknowledgments
@@ -272,6 +321,7 @@ Declined: 4000 0000 0000 0002
 - [Vercel](https://vercel.com/) for hosting and deployment
 - [Stripe](https://stripe.com/) for payment processing
 - [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
+- [Vercel AI SDK](https://sdk.vercel.ai/) and [xAI](https://x.ai/) for the shopping assistant
 
 ---
 

@@ -103,9 +103,9 @@ export function NovaProductCard({
             )}
           </div>
           {outOfStock ? (
-            <span className="add-mini is-disabled" aria-label="Out of stock">
+            <button disabled className="add-mini is-disabled" aria-label="Out of stock">
               <Icon name="plus" size={18} sw={2.2} />
-            </span>
+            </button>
           ) : (
             <Link
               href={productHref(p)}

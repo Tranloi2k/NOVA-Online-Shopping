@@ -60,6 +60,8 @@ export function Icon({
       strokeWidth={sw}
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
     >
       {paths[name]}
     </svg>

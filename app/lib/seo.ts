@@ -151,6 +151,11 @@ const googleSiteVerification =
 export const rootMetadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   manifest: "/manifest.json",
+  icons: {
+    icon: [{ url: "/nova-icon.png", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/nova-icon.png", sizes: "512x512", type: "image/png" }],
+    shortcut: "/nova-icon.png",
+  },
   title: {
     template: `%s | ${SITE_NAME}`,
     default: DEFAULT_TITLE,

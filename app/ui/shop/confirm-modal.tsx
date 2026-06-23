@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ShopButton } from "@/app/ui/shop/button";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useFocusTrap } from "@/app/lib/hooks/use-focus-trap";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -27,7 +28,7 @@ export function ConfirmModal({
   isLoading = false,
 }: ConfirmModalProps) {
   const [mounted, setMounted] = useState(false);
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRef = useFocusTrap<HTMLDivElement>(isOpen, isLoading ? undefined : onClose);
 
   // Set mounted on client side
   useEffect(() => {
@@ -35,16 +36,7 @@ export function ConfirmModal({
     setMounted(true);
   }, []);
 
-  // Close on ESC key press
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen && !isLoading) {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose, isLoading]);
+
 
   // Prevent scroll when modal is open
   useEffect(() => {
@@ -72,6 +64,10 @@ export function ConfirmModal({
       <div
         ref={modalRef}
         className="relative w-full max-w-sm overflow-hidden rounded-shop-lg border border-shop-border bg-shop-surface p-6 shadow-shop-lg animate-confirm-modal"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
+        aria-describedby="confirm-modal-description"
       >
         {/* Close Button */}
         <button
@@ -84,10 +80,10 @@ export function ConfirmModal({
           <XMarkIcon className="h-5 w-5" strokeWidth={1.5} />
         </button>
 
-        <h3 className="font-display text-lg font-bold text-shop-text pr-6">
+        <h3 id="confirm-modal-title" className="font-display text-lg font-bold text-shop-text pr-6">
           {title}
         </h3>
-        <p className="mt-3 text-sm leading-relaxed text-shop-secondary">
+        <p id="confirm-modal-description" className="mt-3 text-sm leading-relaxed text-shop-secondary">
           {message}
         </p>
 
