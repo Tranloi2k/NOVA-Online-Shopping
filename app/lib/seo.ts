@@ -152,9 +152,44 @@ export const rootMetadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   manifest: "/manifest.json",
   icons: {
-    icon: [{ url: "/nova-icon.png", sizes: "512x512", type: "image/png" }],
-    apple: [{ url: "/nova-icon.png", sizes: "512x512", type: "image/png" }],
-    shortcut: "/nova-icon.png",
+    icon: [
+      {
+        url: "/nova-icon.png",
+        sizes: "512x512",
+        type: "image/png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/nova-icon-white.png",
+        sizes: "512x512",
+        type: "image/png",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+    apple: [
+      {
+        url: "/nova-icon.png",
+        sizes: "512x512",
+        type: "image/png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/nova-icon-white.png",
+        sizes: "512x512",
+        type: "image/png",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+    shortcut: [
+      {
+        url: "/nova-icon.png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/nova-icon-white.png",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
   },
   title: {
     template: `%s | ${SITE_NAME}`,
