@@ -1,14 +1,10 @@
-import Script from "next/script";
-
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export function GoogleTagManagerScript() {
   if (!GTM_ID) return null;
 
   return (
-    <Script
-      id="google-tag-manager"
-      strategy="beforeInteractive"
+    <script
       dangerouslySetInnerHTML={{
         __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

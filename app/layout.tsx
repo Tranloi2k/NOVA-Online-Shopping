@@ -25,7 +25,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <GoogleTagManagerScript />
+      <head>
+        <GoogleTagManagerScript />
+      </head>
       <body
         className={`${inter.variable} ${outfit.variable} ${sora.variable} ${manrope.variable} font-sans antialiased`}
       >
