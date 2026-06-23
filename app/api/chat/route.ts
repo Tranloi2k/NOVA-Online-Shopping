@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   return result.toUIMessageStreamResponse({
     onError: (error) => {
       if (error instanceof Error) return error.message;
-      return "Không thể kết nối tới AI. Vui lòng thử lại sau.";
+      return "Unable to connect to AI. Please try again later.";
     },
   });
 }

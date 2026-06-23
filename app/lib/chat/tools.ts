@@ -9,24 +9,20 @@ const categoryIds = PRODUCT_CATEGORIES.filter((c) => c.id !== "all").map(
 export const chatTools = {
   searchProducts: {
     description:
-      "Tìm sản phẩm trong catalog NOVA theo từ khóa, danh mục, giá tối đa hoặc đang giảm giá.",
+      "Search the NOVA catalog by keyword, category, max price, or on-sale items.",
     inputSchema: z.object({
       query: z
         .string()
         .optional()
-        .describe("Từ khóa tìm kiếm, ví dụ: iPhone, tai nghe, laptop"),
+        .describe("Search keyword, e.g. iPhone, headphones, laptop"),
       category: z
         .enum(categoryIds as [string, ...string[]])
         .optional()
-        .describe("Danh mục: smartphones, tablets, wearables, audio, laptops, accessories"),
-      maxPrice: z
-        .number()
-        .optional()
-        .describe("Giá tối đa (USD)"),
-      onSale: z
-        .boolean()
-        .optional()
-        .describe("Chỉ lấy sản phẩm đang giảm giá"),
+        .describe(
+          "Category: smartphones, tablets, wearables, audio, laptops, accessories",
+        ),
+      maxPrice: z.number().optional().describe("Maximum price in USD"),
+      onSale: z.boolean().optional().describe("Only show discounted products"),
     }),
     execute: async (input: {
       query?: string;
