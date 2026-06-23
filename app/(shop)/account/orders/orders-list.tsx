@@ -155,16 +155,7 @@ function OrderCard({ order }: { order: Order }) {
             >
               Order ID
             </div>
-            <div
-              style={{
-                fontWeight: 700,
-                marginTop: 3,
-                fontFamily: "monospace",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {order.id}
-            </div>
+            <div className="order-id">{order.id}</div>
           </div>
         </div>
         <div className="order-status">
@@ -175,30 +166,12 @@ function OrderCard({ order }: { order: Order }) {
         </div>
       </div>
 
-      <div style={{ padding: 22, display: "flex", flexDirection: "column", gap: 18 }}>
+      <div className="order-body">
         {order.items.map((item) => {
           const imgSrc = getSafeImageUrl(item.image);
           return (
-            <div
-              key={item.id}
-              style={{
-                display: "flex",
-                gap: 16,
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <div
-                style={{
-                  width: 68,
-                  height: 68,
-                  position: "relative",
-                  backgroundColor: "var(--surface)",
-                  borderRadius: "var(--r-xs)",
-                  overflow: "hidden",
-                  flexShrink: 0,
-                }}
-              >
+            <div key={item.id} className="order-item">
+              <div className="order-item-thumb">
                 {imgSrc ? (
                   <SafeImage
                     src={imgSrc}
@@ -208,25 +181,17 @@ function OrderCard({ order }: { order: Order }) {
                     sizes="68px"
                   />
                 ) : (
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      background: "var(--surface-muted)",
-                    }}
-                  />
+                  <div className="order-item-thumb-fallback" />
                 )}
               </div>
-              <div style={{ flex: 1, minWidth: 160 }}>
-                <h4 style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}>
-                  {item.name}
-                </h4>
-                <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
+              <div className="order-item-info">
+                <h4>{item.name}</h4>
+                <div className="muted order-item-meta">
                   Qty: {item.quantity} ·{" "}
                   <span className="price">${item.price.toFixed(2)}</span>
                 </div>
               </div>
-              <div>
+              <div className="order-item-actions">
                 <Link href="/products" className="btn btn-sm btn-line">
                   Buy Again
                 </Link>

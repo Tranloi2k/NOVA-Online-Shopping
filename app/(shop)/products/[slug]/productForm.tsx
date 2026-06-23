@@ -69,9 +69,7 @@ export default function ProductForm({
     <div>
       {/* Price */}
       <div className="pdp-price">
-        <span className="price" style={{ fontSize: 34 }}>
-          {fmt(product.price)}
-        </span>
+        <span className="price">{fmt(product.price)}</span>
       </div>
       <div className="muted" style={{ fontSize: 13.5 }}>
         or {fmt(Math.round(product.price / 12))}/mo with NovaPay · 0% APR

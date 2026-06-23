@@ -81,7 +81,7 @@ export default function ProfileForm({ initialUser }: ProfileFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20, marginTop: 10 }}>
+    <form onSubmit={handleSubmit} className="profile-form">
       {error && (
         <div style={{ padding: "12px 16px", borderRadius: "var(--r-sm)", background: "#ffe9e7", color: "var(--sale)", fontSize: 14, fontWeight: 600 }}>
           {error}
@@ -127,7 +127,7 @@ export default function ProfileForm({ initialUser }: ProfileFormProps) {
         <p className="muted" style={{ fontSize: 13 }}>Leave blank if you do not want to change your password.</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+      <div className="profile-form-pw-grid">
         <div className="field">
           <label htmlFor="password">New Password</label>
           <input
@@ -153,12 +153,11 @@ export default function ProfileForm({ initialUser }: ProfileFormProps) {
         </div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
+      <div className="profile-form-actions">
         <button
           type="submit"
           disabled={loading}
           className="btn btn-primary"
-          style={{ minWidth: 150 }}
         >
           {loading ? (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
