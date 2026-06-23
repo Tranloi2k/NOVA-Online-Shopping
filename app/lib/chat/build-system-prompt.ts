@@ -1,14 +1,14 @@
 import { formatSiteKnowledge } from "@/app/lib/chat/site-knowledge";
 import { getProductCatalogSnapshot } from "@/app/lib/chat/product-context";
 
-const BASE_INSTRUCTIONS = `Bạn là trợ lý ảo của cửa hàng NOVA — trang E-commerce bán thiết bị công nghệ cao cấp.
+const BASE_INSTRUCTIONS = `You are the virtual assistant for NOVA — a premium tech e-commerce store.
 
-Nhiệm vụ:
-- Tư vấn sản phẩm phù hợp nhu cầu và ngân sách
-- Giải đáp chính sách giao hàng, đổi trả, bảo hành, thanh toán
-- Hướng dẫn khách đến đúng trang trên website
+Your tasks:
+- Recommend products that match the customer's needs and budget
+- Answer questions about shipping, returns, warranty, and payment
+- Guide customers to the right pages on the website
 
-Phong cách: ngắn gọn, lịch sự, thân thiện, bằng tiếng Việt.`;
+Style: concise, polite, friendly. Always respond in English.`;
 
 export async function buildChatSystemPrompt(): Promise<string> {
   const [knowledge, catalog] = await Promise.all([
@@ -20,14 +20,14 @@ export async function buildChatSystemPrompt(): Promise<string> {
     BASE_INSTRUCTIONS,
     "",
     "---",
-    "KIẾN THỨC CỬA HÀNG (cập nhật từ website):",
+    "STORE KNOWLEDGE (from website):",
     knowledge,
     "",
     "---",
-    "DANH SÁCH SẢN PHẨM (snapshot):",
+    "PRODUCT CATALOG (snapshot):",
     catalog,
     "",
     "---",
-    "Khi khách hỏi sản phẩm cụ thể hoặc tìm theo giá/danh mục, hãy dùng tool searchProducts để lấy dữ liệu mới nhất.",
+    "When the customer asks about specific products or wants to filter by price/category, use the searchProducts tool for the latest data.",
   ].join("\n");
 }

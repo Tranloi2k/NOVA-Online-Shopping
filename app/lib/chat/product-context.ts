@@ -3,7 +3,7 @@ import { productPath } from "@/app/lib/product-path";
 import { getProducts } from "@/app/lib/services/products";
 
 function formatPrice(value: number): string {
-  return new Intl.NumberFormat("vi-VN", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
@@ -15,13 +15,13 @@ export function formatProductLine(product: ProductListItem): string {
   const price = formatPrice(product.price);
   const discount =
     product.discount && product.discount > 0
-      ? `, giảm ${product.discount}%`
+      ? `, ${product.discount}% off`
       : "";
   const stock =
-    product.stock !== undefined ? `, còn ${product.stock} sp` : "";
+    product.stock !== undefined ? `, ${product.stock} in stock` : "";
   const rating =
     product.rating !== undefined
-      ? `, đánh giá ${product.rating}/5 (${product.reviewCount} review)`
+      ? `, rated ${product.rating}/5 (${product.reviewCount} reviews)`
       : "";
 
   return `- ${product.name} | ${price}${discount}${stock}${rating} | ${url}`;
@@ -31,12 +31,12 @@ export async function getProductCatalogSnapshot(limit = 24): Promise<string> {
   const result = await getProducts({ page: 1, limit });
 
   if (result.products.length === 0) {
-    return "Không có dữ liệu sản phẩm lúc này (API có thể đang tắt).";
+    return "No product data available right now (API may be offline).";
   }
 
   const lines = result.products.map(formatProductLine);
   return [
-    `Tổng ${result.total} sản phẩm. Dưới đây là ${result.products.length} sản phẩm nổi bật:`,
+    `${result.total} products total. Featured ${result.products.length} below:`,
     ...lines,
   ].join("\n");
 }
@@ -58,11 +58,11 @@ export async function searchProductsForChat(input: {
   });
 
   if (result.products.length === 0) {
-    return "Không tìm thấy sản phẩm phù hợp với tiêu chí tìm kiếm.";
+    return "No products found matching the search criteria.";
   }
 
   return [
-    `Tìm thấy ${result.total} sản phẩm. Hiển thị ${result.products.length} kết quả:`,
+    `Found ${result.total} products. Showing ${result.products.length} results:`,
     ...result.products.map(formatProductLine),
   ].join("\n");
 }
