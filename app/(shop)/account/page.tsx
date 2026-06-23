@@ -42,48 +42,23 @@ export default async function AccountPage() {
       {/* Banner */}
       <div className="acct-banner">
         <div className="acct-banner-avatar">{initials}</div>
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--muted)" }}>
-            Welcome back
-          </div>
-          <h1 className="acct-h1" style={{ marginTop: 4 }}>
-            {user.name ?? user.email}
-          </h1>
-          <div className="acct-tier" style={{ marginTop: 6, fontSize: 13.5 }}>
-            Nova Member
-          </div>
+        <div className="acct-banner-text">
+          <div className="acct-banner-eyebrow">Welcome back</div>
+          <h1 className="acct-h1">{user.name ?? user.email}</h1>
+          <div className="acct-tier">Nova Member</div>
         </div>
       </div>
 
       {/* Quick links grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          gap: 14,
-        }}
-      >
+      <div className="acct-quick-grid">
         {NAV_ITEMS.map(({ icon, label, href }) => (
-          <Link key={href} href={href} className="acct-card" style={{ display: "flex", alignItems: "center", gap: 16, textDecoration: "none" }}>
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: "var(--r-md)",
-                background: "var(--accent-wash)",
-                color: "var(--accent-ink)",
-                display: "grid",
-                placeItems: "center",
-                flexShrink: 0,
-              }}
-            >
+          <Link key={href} href={href} className="acct-quick-link">
+            <div className="acct-quick-icon">
               <Icon name={icon} size={20} />
             </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 15, color: "var(--ink)" }}>
-                {label}
-              </div>
-              <div className="muted" style={{ fontSize: 13, marginTop: 2 }}>
+            <div className="acct-quick-copy">
+              <div className="acct-quick-label">{label}</div>
+              <div className="muted acct-quick-desc">
                 Manage your {label.toLowerCase()}
               </div>
             </div>

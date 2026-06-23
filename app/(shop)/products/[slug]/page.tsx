@@ -105,7 +105,7 @@ export default async function ProductPage(props: {
             >
               NOVA
             </div>
-            <h1 style={{ fontSize: "clamp(28px,3.4vw,42px)", marginTop: 6 }}>
+            <h1 className="pdp-title" style={{ marginTop: 6 }}>
               {product.name}
             </h1>
 
@@ -138,10 +138,7 @@ export default async function ProductPage(props: {
               </span>
             </div>
 
-            <p
-              className="muted"
-              style={{ fontSize: 17, marginTop: 18, maxWidth: 460 }}
-            >
+            <p className="muted pdp-desc">
               {product.description}
             </p>
 
