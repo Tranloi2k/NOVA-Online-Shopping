@@ -2,13 +2,34 @@
 
 import { useEffect, useRef, RefObject } from "react";
 
+function getVisibleFocusableElements(container: HTMLElement): HTMLElement[] {
+  const focusableSelector =
+    'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
+  const elements = container.querySelectorAll<HTMLElement>(focusableSelector);
+  return Array.from(elements).filter((el) => {
+    const style = window.getComputedStyle(el);
+    return (
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      el.offsetWidth > 0 &&
+      el.offsetHeight > 0
+    );
+  });
+}
+
 export function useFocusTrap<T extends HTMLElement = HTMLElement>(
   active: boolean,
   onClose?: () => void
 ): RefObject<T | null> {
   const containerRef = useRef<T | null>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
 
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  // Initial focus + restore — only when trap opens/closes, not on parent re-renders.
   useEffect(() => {
     if (!active) {
       if (previousActiveElementRef.current) {
@@ -18,44 +39,36 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
       return;
     }
 
-    // Save current active element to restore later
     previousActiveElementRef.current = document.activeElement as HTMLElement;
 
     const container = containerRef.current;
     if (!container) return;
 
-    const getFocusableElements = () => {
-      const focusableSelector =
-        'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
-      const elements = container.querySelectorAll<HTMLElement>(focusableSelector);
-      return Array.from(elements).filter((el) => {
-        const style = window.getComputedStyle(el);
-        return (
-          style.display !== "none" &&
-          style.visibility !== "hidden" &&
-          el.offsetWidth > 0 &&
-          el.offsetHeight > 0
-        );
-      });
-    };
-
-    // Focus the first element after a short timeout to let the DOM settle
     const focusTimer = setTimeout(() => {
-      const visibleElements = getFocusableElements();
+      const visibleElements = getVisibleFocusableElements(container);
       if (visibleElements.length > 0) {
         visibleElements[0].focus();
       }
     }, 50);
 
+    return () => clearTimeout(focusTimer);
+  }, [active]);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && onClose) {
-        onClose();
+      if (e.key === "Escape" && onCloseRef.current) {
+        onCloseRef.current();
         return;
       }
 
       if (e.key !== "Tab") return;
 
-      const visibleElements = getFocusableElements();
+      const visibleElements = getVisibleFocusableElements(container);
       if (visibleElements.length === 0) {
         e.preventDefault();
         return;
@@ -78,11 +91,8 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      clearTimeout(focusTimer);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [active, onClose]);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [active]);
 
   return containerRef;
 }

@@ -3,7 +3,12 @@ import {
   getAllProductSlugParams,
   getProductById,
 } from "@/app/lib/services/products";
-import { buildPageMetadata, productPath } from "@/app/lib/seo";
+import {
+  buildPageMetadata,
+  getProductOgDescription,
+  getProductOgImage,
+  productPath,
+} from "@/app/lib/seo";
 import { productDetailJsonLd } from "@/app/lib/seo-structured-data";
 import JsonLd from "@/app/ui/seo/json-ld";
 import { StarIcon } from "@heroicons/react/24/solid";
@@ -30,17 +35,12 @@ export async function generateMetadata({
   const slug = resolvedParams.slug;
   const id = slug.split(".").pop() || "";
   const data = await getProductById(id, { authenticated: false });
-  const description =
-    typeof data.description === "string" && data.description.length > 0
-      ? data.description.slice(0, 160)
-      : `Buy ${data.name} at NOVA — premium tech with secure checkout.`;
-  const image = data.images?.split(",")[0] ?? data.image;
 
   return buildPageMetadata({
     title: data.name,
-    description,
+    description: getProductOgDescription(data),
     pathname: productPath({ id: data.id, name: data.name }),
-    image,
+    image: getProductOgImage(data),
   });
 }
 
