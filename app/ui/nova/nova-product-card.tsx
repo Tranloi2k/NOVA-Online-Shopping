@@ -35,16 +35,13 @@ export function NovaProductCard({ p }: { p: NovaProduct }) {
   return (
     <article className={clsx("card prod-card", outOfStock && "is-out-of-stock")}>
       <Link href={productHref(p)} style={{ display: "block", position: "relative" }}>
-        <div
-          className="tile"
-          style={{ aspectRatio: "4 / 3", position: "relative", overflow: "hidden" }}
-        >
+        <div className="prod-card-media" style={{ aspectRatio: "4 / 3" }}>
           {imgSrc ? (
             <SafeImage
               src={imgSrc}
               alt={p.name}
               fill
-              className="object-contain p-6"
+              className="object-cover"
               style={{ transition: "transform .5s" }}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
             />

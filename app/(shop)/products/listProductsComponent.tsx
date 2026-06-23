@@ -62,20 +62,16 @@ export default function ListProductsComponent({
               className={clsx("card", outOfStock && "is-out-of-stock")}
               style={{ display: "flex", gap: 20, marginBottom: 4, padding: 0, overflow: "hidden" }}
             >
-              <Link
-                href={productPath(p)}
-                style={{ flex: "none", width: 160, position: "relative" }}
-              >
-                <div className="tile" style={{ height: "100%", minHeight: 140 }}>
+              <Link href={productPath(p)} style={{ flex: "none" }}>
+                <div className="prod-list-media">
                   {listImgSrc ? (
                     <SafeImage
                       src={listImgSrc}
                       alt={p.name}
-                      width={160}
-                      height={140}
+                      fill
                       priority={index === 0}
                       fetchPriority={index === 0 ? "high" : undefined}
-                      className="object-contain p-4"
+                      className="object-cover"
                       sizes="160px"
                     />
                   ) : (

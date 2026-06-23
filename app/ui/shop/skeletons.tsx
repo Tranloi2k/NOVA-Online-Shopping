@@ -1,7 +1,7 @@
 export function ProductCardSkeleton() {
   return (
     <div className="card prod-card">
-      <div className="tile" style={{ aspectRatio: "4 / 3" }}>
+      <div className="prod-card-media" style={{ aspectRatio: "4 / 3" }}>
         <div className="h-full w-full animate-pulse bg-shop-surface-muted" />
       </div>
       <div className="prod-body space-y-3">
