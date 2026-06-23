@@ -996,10 +996,21 @@ html.reveal-ready .reveal:not(.in) {
   transform: translateY(-6px);
   box-shadow: var(--sh-2);
 }
-.prod-card .tile {
+.prod-card-media {
+  position: relative;
+  overflow: hidden;
+}
+.prod-list-media {
+  position: relative;
+  flex: none;
+  width: 160px;
+  height: 140px;
+  overflow: hidden;
+}
+.prod-card .prod-card-media {
   transition: transform 0.5s var(--ease);
 }
-.prod-card:hover .tile > * {
+.prod-card:hover .prod-card-media > * {
   transform: scale(1.06);
 }
 .prod-badges {
@@ -1078,7 +1089,7 @@ html.reveal-ready .reveal:not(.in) {
   transform: none;
   box-shadow: var(--sh-1);
 }
-.prod-card.is-out-of-stock .tile > * {
+.prod-card.is-out-of-stock .prod-card-media > * {
   filter: grayscale(0.25);
 }
 .tag.oos {
