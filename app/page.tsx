@@ -15,7 +15,7 @@ import JsonLd from "@/app/ui/seo/json-ld";
 export const revalidate = 60;
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Nova Shop - smart phone, tablet, and wearables",
+  title: "Nova Shop - smartphones, tablets, and wearables",
   description:
     "Nova Shop premium smartphones, tablets, and wearables. Secure checkout and fast delivery.",
   pathname: "/",
