@@ -131,7 +131,7 @@ export async function FeaturedProducts() {
         <SectionHead eyebrow="Handpicked" title="Featured this week" />
         <div className="prod-grid">
           {featured.map((p, index) => (
-            <Reveal key={p.id} index={index}>
+            <Reveal key={p.id} index={index} className="prod-grid-cell">
               <NovaProductCard p={p} />
             </Reveal>
           ))}
