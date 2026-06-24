@@ -89,12 +89,9 @@ export default auth(async (req) => {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * Exclude static assets and SEO files (sitemap.xml, robots.txt) so
+     * Googlebot never hits NextAuth token refresh on metadata routes.
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json|.*\\..*).*)",
   ],
 };
