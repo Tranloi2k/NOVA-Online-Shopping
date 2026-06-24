@@ -2,11 +2,12 @@ import type { MetadataRoute } from "next";
 import { getAllProductSlugParams } from "@/app/lib/services/products";
 import { absoluteUrl, getSiteUrl } from "@/app/lib/seo";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = getSiteUrl();
-  const now = new Date();
+/** Cache sitemap so Google/crawlers don't hit a cold API on every fetch. */
+export const revalidate = 3600;
 
-  const staticRoutes: MetadataRoute.Sitemap = [
+function staticSitemapEntries(now: Date): MetadataRoute.Sitemap {
+  const siteUrl = getSiteUrl();
+  return [
     {
       url: siteUrl,
       lastModified: now,
@@ -20,14 +21,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
   ];
+}
 
-  const slugParams = await getAllProductSlugParams();
-  const productRoutes: MetadataRoute.Sitemap = slugParams.map(({ slug }) => ({
-    url: absoluteUrl(`/products/${slug}`),
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
+  const staticRoutes = staticSitemapEntries(now);
 
-  return [...staticRoutes, ...productRoutes];
+  try {
+    const slugParams = await getAllProductSlugParams();
+    const productRoutes: MetadataRoute.Sitemap = slugParams.map(({ slug }) => ({
+      url: absoluteUrl(`/products/${slug}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
+
+    return [...staticRoutes, ...productRoutes];
+  } catch (error) {
+    console.error("sitemap: product URLs unavailable, serving static routes only", error);
+    return staticRoutes;
+  }
 }
