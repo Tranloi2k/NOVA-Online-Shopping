@@ -88,7 +88,7 @@ export default function NovaFooter() {
           <span>
             © {new Date().getFullYear()} NOVA Shop. All rights reserved.
           </span>
-          <div style={{ display: "flex", gap: 22 }}>
+          <div className="foot-bottom-links">
             {[
               { name: "Privacy", href: "/privacy" },
               { name: "Terms", href: "/terms" },

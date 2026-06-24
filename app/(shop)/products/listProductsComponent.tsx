@@ -144,7 +144,7 @@ export default function ListProductsComponent({
   return (
     <div className="prod-grid" style={{ marginTop: 28 }}>
       {products.map((p, index) => (
-        <Reveal key={p.id} index={index}>
+        <Reveal key={p.id} index={index} className="prod-grid-cell">
           <NovaProductCard p={toNovaProduct(p)} />
         </Reveal>
       ))}
