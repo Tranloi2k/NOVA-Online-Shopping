@@ -182,6 +182,7 @@ export async function getAllProductSlugParams(): Promise<ProductSlugParam[]> {
       );
 
       for (const product of result.products) {
+        if (!product?.name || product.id == null) continue;
         params.push({ slug: productSlug(product.name, product.id) });
       }
 
