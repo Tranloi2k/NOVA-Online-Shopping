@@ -2,6 +2,7 @@
 import { syncCartBadge } from "@/app/lib/cart-events";
 import { addToCart } from "@/app/lib/services/cart";
 import type { ProductFormProduct } from "@/app/lib/definitions";
+import { getSwatchBackground } from "@/app/lib/product-fields";
 import { getProductStock, isOutOfStock } from "@/app/lib/product-stock";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
 import {
@@ -14,8 +15,6 @@ import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 import { useState } from "react";
 import clsx from "clsx";
-
-const COLOR_NAMES = ["Midnight", "Silver", "Ocean", "Rose", "Forest"];
 
 export default function ProductForm({
   product,
@@ -62,9 +61,6 @@ export default function ProductForm({
     }
   };
 
-  const colorIndex = product.colors.indexOf(selectedColor);
-  const colorName = COLOR_NAMES[colorIndex] || selectedColor;
-
   return (
     <div>
       {/* Price */}
@@ -90,16 +86,16 @@ export default function ProductForm({
         <div className="pdp-section">
           <div className="pdp-label">
             Finish —{" "}
-            <span style={{ color: "var(--ink)" }}>{colorName}</span>
+            <span style={{ color: "var(--ink)" }}>{selectedColor}</span>
           </div>
           <div className="swatches">
-            {product.colors.map((color, i) => (
+            {product.colors.map((color) => (
               <button
-                key={i}
+                key={color}
                 className="swatch"
-                style={{ background: color }}
+                style={{ background: getSwatchBackground(color) }}
                 onClick={() => setSelectedColor(color)}
-                aria-label={COLOR_NAMES[i] || color}
+                aria-label={color}
                 disabled={outOfStock}
               >
                 {selectedColor === color && <span className="swatch-ring" />}

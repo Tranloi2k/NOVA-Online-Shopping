@@ -8,6 +8,83 @@ import {
   SITE_NAME,
 } from "@/app/lib/seo";
 
+/** ISO 3166-1 alpha-2 — matches USD pricing and storefront policies. */
+const MERCHANT_COUNTRY = "US";
+
+const KNOWN_PRODUCT_BRANDS = [
+  "Apple",
+  "Samsung",
+  "Google",
+  "Sony",
+  "Bose",
+  "Dell",
+  "HP",
+  "Lenovo",
+  "Microsoft",
+  "OnePlus",
+  "Xiaomi",
+  "Huawei",
+  "LG",
+  "Motorola",
+  "Nothing",
+  "Garmin",
+  "Fitbit",
+  "JBL",
+  "Beats",
+  "Meta",
+  "Amazon",
+] as const;
+
+function inferProductBrand(name: string): string {
+  const lower = name.toLowerCase();
+  for (const brand of KNOWN_PRODUCT_BRANDS) {
+    if (lower.startsWith(brand.toLowerCase())) return brand;
+  }
+  return SITE_NAME;
+}
+
+function merchantShippingDetails() {
+  return {
+    "@type": "OfferShippingDetails",
+    shippingRate: {
+      "@type": "MonetaryAmount",
+      value: 0,
+      currency: "USD",
+    },
+    shippingDestination: {
+      "@type": "DefinedRegion",
+      addressCountry: MERCHANT_COUNTRY,
+    },
+    deliveryTime: {
+      "@type": "ShippingDeliveryTime",
+      handlingTime: {
+        "@type": "QuantitativeValue",
+        minValue: 0,
+        maxValue: 1,
+        unitCode: "DAY",
+      },
+      transitTime: {
+        "@type": "QuantitativeValue",
+        minValue: 1,
+        maxValue: 2,
+        unitCode: "DAY",
+      },
+    },
+  };
+}
+
+function merchantReturnPolicy() {
+  return {
+    "@type": "MerchantReturnPolicy",
+    applicableCountry: MERCHANT_COUNTRY,
+    returnPolicyCategory:
+      "https://schema.org/MerchantReturnFiniteReturnWindow",
+    merchantReturnDays: 30,
+    returnMethod: "https://schema.org/ReturnByMail",
+    returnFees: "https://schema.org/FreeReturn",
+  };
+}
+
 type ProductDetail = {
   id: number | string;
   name: string;
@@ -16,6 +93,8 @@ type ProductDetail = {
   image?: string;
   price: number;
   discount?: number;
+  brand?: string;
+  gtin?: string;
   reviews?: ProductReview[];
   rating?: number;
   reviewCount?: number;
@@ -114,12 +193,20 @@ export function productDetailJsonLd(product: ProductDetail) {
         description: product.description ?? product.name,
         image: images.length > 0 ? images : undefined,
         sku: String(product.id),
+        brand: {
+          "@type": "Brand",
+          name: product.brand?.trim() || inferProductBrand(product.name),
+        },
+        ...(product.gtin?.trim() ? { gtin: product.gtin.trim() } : {}),
         offers: {
           "@type": "Offer",
           url: absoluteUrl(path),
           priceCurrency: "USD",
           price: offerPrice.toFixed(2),
+          itemCondition: "https://schema.org/NewCondition",
           availability: "https://schema.org/InStock",
+          shippingDetails: merchantShippingDetails(),
+          hasMerchantReturnPolicy: merchantReturnPolicy(),
         },
         ...(rating && reviewCount > 0
           ? {
