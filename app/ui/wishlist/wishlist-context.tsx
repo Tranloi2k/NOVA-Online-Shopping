@@ -17,6 +17,11 @@ import {
 import { syncWishlistCount } from "@/app/lib/wishlist-events";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 
+type WishlistCache = {
+  userId: string;
+  ids: number[];
+};
+
 type WishlistContextValue = {
   productIds: Set<number>;
   isLoading: boolean;
@@ -33,43 +38,48 @@ const WishlistContext = createContext<WishlistContextValue>({
   syncProductIds: () => {},
 });
 
+const EMPTY_IDS = new Set<number>();
+
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const { requireAuth } = useRequireAuth();
-  const [productIds, setProductIds] = useState<Set<number>>(new Set());
-  const [isLoading, setIsLoading] = useState(false);
+  const userId =
+    status === "authenticated" ? (session?.user?.id ?? null) : null;
+  const [cache, setCache] = useState<WishlistCache | null>(null);
+
+  const productIds = useMemo(() => {
+    if (!userId || !cache || cache.userId !== userId) {
+      return EMPTY_IDS;
+    }
+    return new Set(cache.ids);
+  }, [userId, cache]);
+
+  const isLoading = Boolean(userId && (!cache || cache.userId !== userId));
 
   useEffect(() => {
-    if (status !== "authenticated") {
-      setProductIds(new Set());
+    if (!userId) {
       syncWishlistCount(0);
       return;
     }
 
     let cancelled = false;
-    setIsLoading(true);
 
     getWishlistProductIds()
       .then((ids) => {
         if (cancelled) return;
-        const next = new Set(ids);
-        setProductIds(next);
-        syncWishlistCount(next.size);
+        setCache({ userId, ids });
+        syncWishlistCount(ids.length);
       })
       .catch(() => {
-        if (!cancelled) {
-          setProductIds(new Set());
-          syncWishlistCount(0);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
+        if (cancelled) return;
+        setCache({ userId, ids: [] });
+        syncWishlistCount(0);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [status]);
+  }, [userId]);
 
   const isWishlisted = useCallback(
     (productId: number) => productIds.has(productId),
@@ -89,22 +99,27 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
           ? await removeFromWishlist(productId)
           : await addToWishlist(productId);
 
-        const next = new Set(summary.items.map((item) => item.productId));
-        setProductIds(next);
+        const ids = summary.items.map((item) => item.productId);
+        if (userId) {
+          setCache({ userId, ids });
+        }
         syncWishlistCount(summary.totalItems);
-        return next.has(productId);
+        return ids.includes(productId);
       } catch {
         return wasWishlisted;
       }
     },
-    [productIds, requireAuth],
+    [productIds, requireAuth, userId],
   );
 
-  const syncProductIds = useCallback((ids: number[]) => {
-    const next = new Set(ids);
-    setProductIds(next);
-    syncWishlistCount(next.size);
-  }, []);
+  const syncProductIds = useCallback(
+    (ids: number[]) => {
+      if (!userId) return;
+      setCache({ userId, ids });
+      syncWishlistCount(ids.length);
+    },
+    [userId],
+  );
 
   const value = useMemo(
     () => ({
