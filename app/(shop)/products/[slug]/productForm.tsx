@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
+import { useWishlist } from "@/app/ui/wishlist/wishlist-context";
 import { useState } from "react";
 import clsx from "clsx";
 
@@ -29,8 +30,10 @@ export default function ProductForm({
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const { requireAuth, isAuthLoading } = useRequireAuth();
+  const { isWishlisted, toggle, isLoading: isWishlistLoading } = useWishlist();
+  const isFavorite = isWishlisted(Number(product.id));
 
   const stock = getProductStock(product.stock);
   const outOfStock = isOutOfStock(stock);
@@ -58,6 +61,21 @@ export default function ProductForm({
       );
     } finally {
       setIsAdding(false);
+    }
+  };
+
+  const handleToggleWishlist = async () => {
+    if (isTogglingWishlist) return;
+    setIsTogglingWishlist(true);
+    setError(null);
+    try {
+      await toggle(Number(product.id));
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not update wishlist. Please try again.",
+      );
+    } finally {
+      setIsTogglingWishlist(false);
     }
   };
 
@@ -158,8 +176,10 @@ export default function ProductForm({
         </button>
         <button
           className="icon-btn fav-lg"
-          onClick={() => setIsFavorite(!isFavorite)}
+          onClick={handleToggleWishlist}
+          disabled={isWishlistLoading || isTogglingWishlist}
           aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={isFavorite}
           style={{ color: isFavorite ? "var(--sale)" : "var(--ink)" }}
         >
           {isFavorite ? (

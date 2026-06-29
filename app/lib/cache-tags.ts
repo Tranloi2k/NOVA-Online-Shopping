@@ -12,6 +12,8 @@ export const CACHE_TAGS = {
   /** Cart summary (all users — use with user-specific tag when possible) */
   cart: "cart",
   cartUser: (userId: string | number) => `cart-user-${userId}`,
+  wishlist: "wishlist",
+  wishlistUser: (userId: string | number) => `wishlist-user-${userId}`,
   user: "user",
   userId: (id: string | number) => `user-${id}`,
 } as const;

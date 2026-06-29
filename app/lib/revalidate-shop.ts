@@ -117,3 +117,40 @@ export function revalidateProductsCatalog(options?: {
 export function refreshShopRoute(): void {
   softRefreshCurrentRoute();
 }
+
+export type RevalidateAfterWishlistOptions = {
+  userId?: string;
+  productId?: string | number;
+  refreshRoute?: boolean;
+  source?: RevalidateSource;
+};
+
+/** Invalidate caches and routes after wishlist mutations. */
+export function revalidateAfterWishlistChange(
+  options: RevalidateAfterWishlistOptions = {},
+): void {
+  const {
+    userId,
+    productId,
+    refreshRoute = true,
+    source = "action",
+  } = options;
+
+  invalidateDataCacheTag(CACHE_TAGS.wishlist, source);
+
+  if (userId) {
+    invalidateDataCacheTag(CACHE_TAGS.wishlistUser(userId), source);
+    invalidateDataCacheTag(CACHE_TAGS.userId(userId), source);
+  }
+
+  if (productId !== undefined && productId !== "") {
+    invalidateDataCacheTag(CACHE_TAGS.product(productId), source);
+  }
+
+  revalidatePath("/account/wishlist");
+  revalidatePath("/products", "layout");
+
+  if (refreshRoute) {
+    softRefreshCurrentRoute();
+  }
+}
