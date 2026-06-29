@@ -171,3 +171,25 @@ export type CartSummary = {
   totalDiscount: number;
   finalPrice: number;
 };
+
+export type WishlistProduct = {
+  id: number;
+  name: string;
+  image: string;
+  price: number;
+  discount: number;
+  stock: number;
+};
+
+export type WishlistItem = {
+  id: number;
+  userId: number;
+  productId: number;
+  product: WishlistProduct;
+  createdAt: string;
+};
+
+export type WishlistSummary = {
+  items: WishlistItem[];
+  totalItems: number;
+};

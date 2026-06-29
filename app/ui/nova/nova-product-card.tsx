@@ -6,6 +6,7 @@ import { formatMoney } from "@/app/ui/nova/nova-utils";
 import { getSafeImageUrl } from "@/app/lib/utils";
 import { SafeImage } from "@/app/ui/shared/safe-image";
 import { isOutOfStock } from "@/app/lib/product-stock";
+import WishlistHeartButton from "@/app/ui/wishlist/wishlist-heart-button";
 
 export type NovaProduct = {
   id: number;
@@ -34,8 +35,9 @@ export function NovaProductCard({ p }: { p: NovaProduct }) {
 
   return (
     <article className={clsx("card prod-card", outOfStock && "is-out-of-stock")}>
-      <Link href={productHref(p)} style={{ display: "block", position: "relative" }}>
-        <div className="prod-card-media" style={{ aspectRatio: "4 / 3" }}>
+      <div style={{ display: "block", position: "relative" }}>
+        <Link href={productHref(p)} style={{ display: "block" }}>
+          <div className="prod-card-media" style={{ aspectRatio: "4 / 3" }}>
           {imgSrc ? (
             <SafeImage
               src={imgSrc}
@@ -56,7 +58,9 @@ export function NovaProductCard({ p }: { p: NovaProduct }) {
             <span className="tag sale">Save {p.discount}%</span>
           )}
         </div>
-      </Link>
+        </Link>
+        <WishlistHeartButton productId={p.id} />
+      </div>
 
       <div className="prod-body">
         <h3 style={{ fontSize: 17, marginTop: 3 }}>{p.name}</h3>
