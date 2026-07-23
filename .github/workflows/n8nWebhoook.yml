@@ -1,6 +1,41 @@
-- name: Notify n8n
-  if: always()
-  run: |
-    curl -X POST https://n8n-vfgn.onrender.com/webhook/dbc63e63-af95-4045-b31f-f8bef6866b1d \
-      -H "Content-Type: application/json" \
-      -d '{"status": "${{ job.status }}", "repo": "${{ github.repository }}", "branch": "${{ github.ref_name }}"}'
+name: Build and Notify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Notify n8n
+        if: always()
+        run: |
+          curl -X POST https://your-n8n-domain/webhook/xxx \
+            -H "Content-Type: application/json" \
+            -d '{
+              "status": "${{ job.status }}",
+              "repo": "${{ github.repository }}",
+              "branch": "${{ github.ref_name }}",
+              "commit": "${{ github.sha }}",
+              "actor": "${{ github.actor }}",
+              "run_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }'
