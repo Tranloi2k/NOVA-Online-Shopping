@@ -24,7 +24,7 @@ export default function GlobalError({
           reset={reset}
           variant="full"
           title="Application error"
-          description="A critical error occurred. Reload the page or return to the store homepage."
+          description="A critical error occurred. Reload the page or return to the Homepage."
           showProducts
         />
       </body>
