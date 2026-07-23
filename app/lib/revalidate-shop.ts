@@ -64,12 +64,7 @@ export type RevalidateAfterCartOptions = {
 export function revalidateAfterCartChange(
   options: RevalidateAfterCartOptions = {},
 ): void {
-  const {
-    userId,
-    productId,
-    refreshRoute = true,
-    source = "action",
-  } = options;
+  const { userId, productId, refreshRoute = true, source = "action" } = options;
 
   invalidateDataCacheTag(CACHE_TAGS.cart, source);
   invalidateDataCacheTag(CACHE_TAGS.products, source);
@@ -129,12 +124,7 @@ export type RevalidateAfterWishlistOptions = {
 export function revalidateAfterWishlistChange(
   options: RevalidateAfterWishlistOptions = {},
 ): void {
-  const {
-    userId,
-    productId,
-    refreshRoute = true,
-    source = "action",
-  } = options;
+  const { userId, productId, refreshRoute = true, source = "action" } = options;
 
   invalidateDataCacheTag(CACHE_TAGS.wishlist, source);
 
