@@ -29,8 +29,9 @@ jobs:
       - name: Notify n8n
         if: always()
         run: |
-          curl -X POST https://your-n8n-domain/webhook/xxx \
+          curl -X POST "${{ secrets.N8N_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
+            -H "X-Auth-Token: ${{ secrets.N8N_WEBHOOK_TOKEN }}" \
             -d '{
               "status": "${{ job.status }}",
               "repo": "${{ github.repository }}",
