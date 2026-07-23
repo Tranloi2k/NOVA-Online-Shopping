@@ -2,9 +2,9 @@ name: Build and Notify
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [prod]
 
 jobs:
   build:
