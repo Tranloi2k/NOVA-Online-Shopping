@@ -1,0 +1,6 @@
+- name: Notify n8n
+  if: always()
+  run: |
+    curl -X POST https://n8n-vfgn.onrender.com/webhook/dbc63e63-af95-4045-b31f-f8bef6866b1d \
+      -H "Content-Type: application/json" \
+      -d '{"status": "${{ job.status }}", "repo": "${{ github.repository }}", "branch": "${{ github.ref_name }}"}'
