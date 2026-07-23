@@ -35,7 +35,7 @@ export default function RootLayout({
         <GoogleTagManagerNoScript />
         <GoogleAnalytics />
         <a href="#main-content" className="skip-link">
-          Skip to main content
+          Skip to Home pagw
         </a>
         <Providers>
           {children}
