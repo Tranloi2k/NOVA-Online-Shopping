@@ -646,8 +646,10 @@ html.reveal-ready .reveal:not(.in) {
   color: inherit;
   cursor: pointer;
   background: none;
-  border-bottom: 1px solid var(--hair-soft);
   font-family: inherit;
+}
+.m-link.is-active {
+  color: var(--accent-ink);
 }
 
 /* POSTER RAIL (image-only carousel below hero) */

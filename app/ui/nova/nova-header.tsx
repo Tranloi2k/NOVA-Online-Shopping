@@ -4,13 +4,17 @@ import { useState, useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Icon } from "@/app/ui/nova/nova-icons";
 import { useCartDrawer } from "@/app/ui/nova/cart-drawer-context";
 import { useFocusTrap } from "@/app/lib/hooks/use-focus-trap";
 import { CART_UPDATED_EVENT, syncCartBadge } from "@/app/lib/cart-events";
-import { categoryNavHref, CATEGORY_NAV_ITEMS } from "@/app/lib/product-filters";
+import {
+  categoryNavHref,
+  CATEGORY_NAV_ITEMS,
+  isCategoryActive,
+} from "@/app/lib/product-filters";
 import { getCartSummary } from "@/app/lib/services/cart";
 
 function readStoredCartCount(): number {
@@ -41,7 +45,18 @@ function getServerSnapshot() {
 
 export default function NovaHeader() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
+
+  const isProductsList = pathname === "/products";
+  const isProductDetail =
+    pathname.startsWith("/products/") && pathname !== "/products";
+  const activeCategory = isProductsList
+    ? searchParams.get("category") || undefined
+    : undefined;
+  const isShopActive =
+    (isProductsList && isCategoryActive(activeCategory, "all")) ||
+    isProductDetail;
   const { toggle: toggleCart } = useCartDrawer();
 
   const cartCount = useSyncExternalStore(
@@ -149,7 +164,7 @@ export default function NovaHeader() {
           </Link>
           <Link
             href="/products"
-            className={`nav-link${pathname.startsWith("/products") ? " is-active" : ""}`}
+            className={`nav-link${isShopActive ? " is-active" : ""}`}
           >
             Shop
           </Link>
@@ -157,7 +172,11 @@ export default function NovaHeader() {
             <Link
               key={c.id}
               href={categoryNavHref(c.id)}
-              className="nav-link"
+              className={`nav-link${
+                isProductsList && isCategoryActive(activeCategory, c.id)
+                  ? " is-active"
+                  : ""
+              }`}
             >
               {c.label}
             </Link>
@@ -255,21 +274,31 @@ export default function NovaHeader() {
                   ["/", "Home"],
                   ["/products", "Shop"],
                 ] as const
-              ).map(([href, label]) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="m-link"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {label}
-                </Link>
-              ))}
+              ).map(([href, label]) => {
+                const isActive =
+                  href === "/"
+                    ? pathname === "/"
+                    : isShopActive;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`m-link${isActive ? " is-active" : ""}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
               {CATEGORY_NAV_ITEMS.map((c) => (
                 <Link
                   key={c.id}
                   href={categoryNavHref(c.id)}
-                  className="m-link"
+                  className={`m-link${
+                    isProductsList && isCategoryActive(activeCategory, c.id)
+                      ? " is-active"
+                      : ""
+                  }`}
                   onClick={() => setMenuOpen(false)}
                 >
                   {c.label}
