@@ -268,7 +268,8 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
       return;
     }
 
-    const { product_id, quantity, order_type, user_id } = session.metadata || {};
+    const { product_id, quantity, order_type, user_id, shipping_address_id } =
+      session.metadata || {};
     const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
     const webhookSecret = process.env.INTERNAL_WEBHOOK_SECRET;
 
@@ -297,6 +298,7 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
         orderType,
         productId: product_id ? Number(product_id) : undefined,
         quantity: quantity ? Number(quantity) : undefined,
+        addressId: shipping_address_id ? Number(shipping_address_id) : undefined,
       }),
     });
 

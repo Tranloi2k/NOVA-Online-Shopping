@@ -20,7 +20,12 @@ export interface Order {
   id: string;
   date: string;
   status: OrderStatus;
+  subtotal?: number;
+  shippingFee?: number;
+  taxAmount?: number;
   total: number;
+  trackingNumber?: string;
+  carrier?: string;
   items: OrderItem[];
 }
 
@@ -200,6 +205,63 @@ function OrderCard({ order }: { order: Order }) {
           );
         })}
       </div>
+
+      {(order.trackingNumber ||
+        order.subtotal !== undefined ||
+        order.shippingFee !== undefined ||
+        order.taxAmount !== undefined) && (
+        <div
+          className="order-foot"
+          style={{
+            borderTop: "1px solid var(--border)",
+            padding: "14px 16px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          {order.trackingNumber && (
+            <div style={{ fontSize: 13 }}>
+              <span className="muted" style={{ fontWeight: 700, textTransform: "uppercase", fontSize: 11, letterSpacing: "0.05em" }}>
+                Tracking
+              </span>{" "}
+              <span style={{ fontWeight: 700 }}>
+                {order.carrier ? `${order.carrier} · ` : ""}
+                {order.trackingNumber}
+              </span>
+            </div>
+          )}
+          {(order.subtotal !== undefined ||
+            order.shippingFee !== undefined ||
+            order.taxAmount !== undefined) && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13, maxWidth: 260, marginLeft: "auto" }}>
+              {order.subtotal !== undefined && (
+                <Row label="Subtotal" value={order.subtotal} />
+              )}
+              {order.shippingFee !== undefined && (
+                <Row label="Shipping" value={order.shippingFee} />
+              )}
+              {order.taxAmount !== undefined && (
+                <Row label="Tax" value={order.taxAmount} />
+              )}
+              <Row label="Total" value={order.total} strong />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Row({ label, value, strong }: { label: string; value: number; strong?: boolean }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+      <span className={strong ? undefined : "muted"} style={{ fontWeight: strong ? 800 : 500 }}>
+        {label}
+      </span>
+      <span className="price" style={{ fontWeight: strong ? 800 : 600 }}>
+        ${value.toFixed(2)}
+      </span>
     </div>
   );
 }

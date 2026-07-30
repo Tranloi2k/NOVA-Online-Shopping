@@ -114,6 +114,7 @@ export const confirmOrder = async (
     orderType: string;
     productId?: number;
     quantity?: number;
+    addressId?: number;
   },
 ) => {
   const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
