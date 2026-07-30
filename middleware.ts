@@ -92,6 +92,6 @@ export const config = {
      * Exclude static assets and SEO files (sitemap.xml, robots.txt) so
      * Googlebot never hits NextAuth token refresh on metadata routes.
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json|.*\\..*).*)",
+    "/((?!api|monitoring|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json|.*\\..*).*)",
   ],
 };

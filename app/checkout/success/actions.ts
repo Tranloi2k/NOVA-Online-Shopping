@@ -22,6 +22,9 @@ export async function confirmCheckoutOrderAction(sessionId: string) {
     const orderType = session.metadata?.order_type === "cart" ? "cart" : "direct";
     const productId = session.metadata?.product_id ? Number(session.metadata.product_id) : undefined;
     const quantity = session.metadata?.quantity ? Number(session.metadata.quantity) : undefined;
+    const addressId = session.metadata?.shipping_address_id
+      ? Number(session.metadata.shipping_address_id)
+      : undefined;
     const total = session.amount_total ? session.amount_total / 100 : 0;
 
     await confirmOrder({
@@ -30,6 +33,7 @@ export async function confirmCheckoutOrderAction(sessionId: string) {
       orderType,
       productId,
       quantity,
+      addressId,
     });
 
     // Revalidate caches (fully supported inside Server Actions)

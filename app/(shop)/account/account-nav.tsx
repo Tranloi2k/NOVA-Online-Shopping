@@ -9,6 +9,7 @@ import clsx from "clsx";
 const NAV_ITEMS = [
   { icon: "box" as const, label: "Orders", href: "/account/orders", badge: null },
   { icon: "heart" as const, label: "Wishlist", href: "/account/wishlist", badge: null },
+  { icon: "pin" as const, label: "Addresses", href: "/account/addresses", badge: null },
   { icon: "user" as const, label: "Profile", href: "/account/profile", badge: null },
   { icon: "shield" as const, label: "Security", href: "/account/security", badge: null },
 ];

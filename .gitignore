@@ -44,3 +44,6 @@ next-env.d.ts
 
 # CodeGraph local index (regenerate with `codegraph init -i`)
 .codegraph/
+
+# Sentry build plugin (source-map upload auth token)
+.env.sentry-build-plugin
