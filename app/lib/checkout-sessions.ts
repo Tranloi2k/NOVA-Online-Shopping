@@ -256,6 +256,57 @@ export async function handleStripeWebhook(
   }
 }
 
+type StripeAddressLike = {
+  line1?: string | null;
+  line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+};
+
+type GuestShippingAddress = {
+  fullName: string;
+  phone?: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state?: string;
+  postalCode?: string;
+  country: string;
+};
+
+// Pull the shipping address Stripe collected for a guest checkout. Handles both
+// the current `collected_information.shipping_details` shape and the legacy
+// top-level `shipping_details`. Returns undefined if the address is incomplete.
+function extractGuestShipping(
+  session: Stripe.Checkout.Session,
+): GuestShippingAddress | undefined {
+  const s = session as unknown as {
+    collected_information?: {
+      shipping_details?: { name?: string | null; address?: StripeAddressLike | null } | null;
+    } | null;
+    shipping_details?: { name?: string | null; address?: StripeAddressLike | null } | null;
+  };
+  const shipping = s.collected_information?.shipping_details ?? s.shipping_details;
+  const addr = shipping?.address;
+
+  if (!addr?.line1 || !addr.city || !addr.country) {
+    return undefined;
+  }
+
+  return {
+    fullName: shipping?.name ?? session.customer_details?.name ?? "Customer",
+    phone: session.customer_details?.phone ?? undefined,
+    line1: addr.line1,
+    line2: addr.line2 ?? undefined,
+    city: addr.city,
+    state: addr.state ?? undefined,
+    postalCode: addr.postal_code ?? undefined,
+    country: addr.country,
+  };
+}
+
 // Handle successful payment
 async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
   try {
@@ -280,26 +331,36 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
       return;
     }
 
-    if (!user_id) {
-      console.error("No user_id in Stripe session metadata:", session.id);
-      return;
+    const isGuest = !user_id;
+    const orderType = order_type === "cart" ? "cart" : "direct";
+
+    // Build the confirmation payload. Account orders are keyed by user_id (plus a
+    // saved address id); guest orders carry the email and shipping address that
+    // Stripe Checkout collected, and are always direct "Buy now" purchases.
+    const confirmBody: Record<string, unknown> = {
+      stripeSessionId: session.id,
+      orderType,
+      productId: product_id ? Number(product_id) : undefined,
+      quantity: quantity ? Number(quantity) : undefined,
+    };
+
+    if (isGuest) {
+      confirmBody.orderType = "direct";
+      confirmBody.guestEmail =
+        session.customer_details?.email ?? session.customer_email ?? undefined;
+      confirmBody.shippingAddress = extractGuestShipping(session);
+    } else {
+      confirmBody.userId = Number(user_id);
+      confirmBody.addressId = shipping_address_id ? Number(shipping_address_id) : undefined;
     }
 
-    const orderType = order_type === "cart" ? "cart" : "direct";
     const response = await fetch(`${apiUrl}/internal/orders/confirm`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-webhook-secret": webhookSecret,
       },
-      body: JSON.stringify({
-        userId: Number(user_id),
-        stripeSessionId: session.id,
-        orderType,
-        productId: product_id ? Number(product_id) : undefined,
-        quantity: quantity ? Number(quantity) : undefined,
-        addressId: shipping_address_id ? Number(shipping_address_id) : undefined,
-      }),
+      body: JSON.stringify(confirmBody),
     });
 
     if (!response.ok) {
@@ -310,7 +371,7 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
 
     devLog("Order confirmed via webhook for session:", session.id);
 
-    if (orderType === "cart") {
+    if (!isGuest && orderType === "cart") {
       revalidateAfterCartChange({ userId: user_id, refreshRoute: false, source: "handler" });
     } else if (product_id) {
       revalidateAfterCartChange({

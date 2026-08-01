@@ -9,9 +9,9 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   const checkoutAuth = await getCheckoutAuth();
-  if (!checkoutAuth.authorized || !checkoutAuth.userId) {
-    return NextResponse.json({ error: "Sign in required" }, { status: 401 });
-  }
+  // Guests may check out via "Buy now"; Stripe Checkout collects their email
+  // and shipping address, and the webhook creates a guest order.
+  const isGuest = !checkoutAuth.authorized || !checkoutAuth.userId;
 
   try {
     const { productId, quantity, customerEmail, addressId } =
@@ -50,20 +50,28 @@ export async function POST(request: NextRequest) {
       image: dbProduct.image,
     };
 
-    // Snapshot the selected (or default) saved address onto the order.
-    const resolvedAddressId: number | null =
-      addressId != null ? Number(addressId) : await getDefaultAddressId();
+    // Account checkouts snapshot a saved address; guests supply the address in
+    // Stripe Checkout, so no address id is attached for them.
+    let metadata: Record<string, string>;
+    if (isGuest) {
+      metadata = { guest: "1" };
+    } else {
+      const resolvedAddressId: number | null =
+        addressId != null ? Number(addressId) : await getDefaultAddressId();
+      metadata = {
+        user_id: checkoutAuth.userId as string,
+        ...(resolvedAddressId != null
+          ? { shipping_address_id: String(resolvedAddressId) }
+          : {}),
+      };
+    }
 
     const stripeSession = await createProductCheckoutSession(
       product,
       parseInt(quantity, 10),
-      customerEmail ?? checkoutAuth.customerEmail,
-      {
-        user_id: checkoutAuth.userId ?? "",
-        ...(resolvedAddressId != null
-          ? { shipping_address_id: String(resolvedAddressId) }
-          : {}),
-      },
+      // Accounts prefill their email; guests type it into Stripe Checkout.
+      isGuest ? customerEmail || undefined : customerEmail ?? checkoutAuth.customerEmail,
+      metadata,
     );
 
     if (!stripeSession.url) {
