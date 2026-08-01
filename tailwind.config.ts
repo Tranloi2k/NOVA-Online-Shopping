@@ -10,7 +10,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-sora)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-inter)', 'ui-monospace', 'monospace'],
       },
       fontSize: {

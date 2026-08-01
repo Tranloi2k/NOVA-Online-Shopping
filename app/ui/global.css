@@ -115,7 +115,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
   /* Nova fonts — use CSS vars loaded by next/font */
   --font-display: var(--font-sora, "Sora", system-ui, sans-serif);
-  --font-body: var(--font-manrope, "Manrope", system-ui, sans-serif);
+  --font-body: var(--font-inter, "Inter", system-ui, sans-serif);
 
   --maxw: 1280px;
   --gutter: clamp(20px, 5vw, 64px);

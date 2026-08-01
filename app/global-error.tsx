@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
-import { inter, outfit } from "@/app/ui/fonts";
+import { inter, sora } from "@/app/ui/fonts";
 import ErrorBoundaryUI from "@/app/ui/error-boundary";
 
 /**
@@ -23,7 +23,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${outfit.variable} bg-shop-bg font-sans text-shop-text antialiased`}
+        className={`${inter.variable} ${sora.variable} bg-shop-bg font-sans text-shop-text antialiased`}
       >
         <ErrorBoundaryUI
           error={error}
