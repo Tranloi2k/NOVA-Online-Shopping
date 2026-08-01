@@ -1,5 +1,5 @@
 import "@/app/ui/global.css";
-import { inter, outfit, sora, manrope } from "@/app/ui/fonts";
+import { inter, sora } from "@/app/ui/fonts";
 import type { Metadata, Viewport } from "next";
 import Providers from "@/app/providers";
 import { rootMetadata } from "@/app/lib/seo";
@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body
-        className={`${inter.variable} ${outfit.variable} ${sora.variable} ${manrope.variable} font-sans antialiased`}
+        className={`${inter.variable} ${sora.variable} font-sans antialiased`}
       >
         <GoogleTagManagerScript />
         <GoogleTagManagerNoScript />

@@ -4,12 +4,12 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
+import { SENTRY_TRACES_SAMPLE_RATE } from "@/app/lib/sentry-sampling";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
 
   // Enable logs to be sent to Sentry
   enableLogs: true,
