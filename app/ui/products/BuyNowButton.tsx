@@ -29,9 +29,7 @@ export default function BuyNowButton({
 
   const handleBuyNow = async () => {
     if (outOfStock) return;
-    if (!requireAuth()) {
-      return;
-    }
+    // Guests are allowed — Stripe Checkout collects their email + address.
 
     try {
       setIsLoading(true);
